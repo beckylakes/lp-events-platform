@@ -14,18 +14,18 @@ app.get("/", (req, res, next) => {
   return res.status(200).send({ hello: "world!" });
 });
 
-app.get("/users", async (req, res, next) => {
-    try {
-       const users = await User.find()
-       res.status(200).json({users})
-    } catch (error){
-        res.status(500).json({
-            message: error.message,
-          });
-    }
-})
+// app.get("/users", async (req, res, next) => {
+//     try {
+//        const users = await User.find()
+//        res.status(200).json({users})
+//     } catch (error){
+//         res.status(500).json({
+//             message: error.message,
+//           });
+//     }
+// })
 
-app.post("/users", async (req, res, next) => {
+app.post("/api/users", async (req, res, next) => {
   //   console.log(req.body);
   try {
     const user = await User.create(req.body);
@@ -39,5 +39,9 @@ app.post("/users", async (req, res, next) => {
     });
   }
 });
+
+app.all('/api/*', (req, res) => {
+    res.status(404).send({msg: "Page not found"})
+})
 
 module.exports = app;
