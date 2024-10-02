@@ -14,16 +14,27 @@ app.get("/", (req, res, next) => {
   return res.status(200).send({ hello: "world!" });
 });
 
-// app.get("/users", async (req, res, next) => {
-//     try {
-//        const users = await User.find()
-//        res.status(200).json({users})
-//     } catch (error){
-//         res.status(500).json({
-//             message: error.message,
-//           });
-//     }
-// })
+app.get("/api/users", async (req, res, next) => {
+    try {
+       const users = await User.find()
+       res.status(200).json({users})
+    } catch (error){
+        res.status(500).json({
+            message: error.message,
+          });
+    }
+})
+
+app.get("/api/users/:id", async (req, res, next) => {
+    try {
+       const user = await User.findById(req.params.id)
+       res.status(200).json({user})
+    } catch (error){
+        res.status(500).json({
+            message: error.message,
+          });
+    }
+})
 
 app.post("/api/users", async (req, res, next) => {
   //   console.log(req.body);
