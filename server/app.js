@@ -70,6 +70,20 @@ app.post("/api/users", async (req, res, next) => {
     }
   });
 
+  app.delete("/api/users/:id", async (req, res, next) => {
+    try {
+       const user = await User.findByIdAndDelete(req.params.id)
+       if(!user){
+        return res.status(404).json({message: `User with ID ${req.params.id} doesn't exist`})
+    }
+       res.status(200).send({msg: "Deleted!"})
+    } catch (error){
+        res.status(500).json({
+            message: error.message,
+          });
+    }
+})
+
 app.all('/api/*', (req, res) => {
     res.status(404).send({msg: "Page not found"})
 })
