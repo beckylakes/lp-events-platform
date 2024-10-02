@@ -5,14 +5,13 @@ const userSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true,
+      unique: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
-      trim: true,
     },
     password: {
       type: String,
@@ -20,19 +19,19 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["staff", "member"], // Only allows 'staff' or 'member'
+      enum: ["staff", "member"],
       default: "member",
     },
-    eventsSignedUp: [
+    attendingEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event", // Reference to the Event model
+        ref: "Event",
       },
     ],
     createdEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event", // Only applies if the user is a staff member
+        ref: "Event",
       },
     ],
   },
