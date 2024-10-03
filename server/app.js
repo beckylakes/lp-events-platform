@@ -85,7 +85,7 @@ app.post("/api/users", async (req, res, next) => {
 })
 
 app.all('/api/*', (req, res) => {
-    res.status(404).send({msg: "Page not found"})
+    res.status(404).send({msg: `${res.statusCode}: Page Not Found`})
 })
 
 module.exports = app;
