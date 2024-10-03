@@ -20,72 +20,77 @@ afterAll(async () => {
 });
 
 describe("GET /api/users", () => {
-    test('should respond with an array of expected length', () => {
-        return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({body}) => {
-            const { users } = body;
-            expect(users).toBeInstanceOf(Array);
-            expect(users).toHaveLength(3);
-        })
-    });
-
-    test('each user object should have expected properties', () => {
-        return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({body}) => {
-            const { users } = body;
-            expect(users).toHaveLength(3);
-            users.forEach((user) => {
-                expect(user).toMatchObject({
-                    _id: expect.any(String),
-                    name: expect.any(String),
-                    avatar: expect.any(String),
-                    email: expect.any(String),
-                    password: expect.any(String),
-                    role: expect.any(String),
-                    attendingEvents: expect.any(Array),
-                    createdEvents: expect.any(Array),
-                    // _v: expect.any(Date),
-                    createdAt: expect.any(String),
-                    updatedAt: expect.any(String)
-                })
-            })
-        })
-    });
-    
-    
-  test("should respond with an array of user objects", () => {
+  test("should respond with an array of expected length", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
-      .then((response) => {
-        expect(response.body.users).toBeInstanceOf(Array);
-        expect(response.body.users.length).toBeGreaterThan(0);
-        response.body.users.forEach((user) => {
-          expect(user).toEqual(
-            expect.objectContaining({
-              name: expect.any(String),
-              email: expect.any(String),
-              role: expect.any(String),
-            })
-          );
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(3);
+      });
+  });
+
+  test("each user object should have expected properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toHaveLength(3);
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            _id: expect.any(String),
+            name: expect.any(String),
+            avatar: expect.any(String),
+            email: expect.any(String),
+            password: expect.any(String),
+            role: expect.any(String),
+            attendingEvents: expect.any(Array),
+            createdEvents: expect.any(Array),
+            // _v: expect.any(Date),
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          });
         });
       });
   });
 });
 
-describe("GET Invalid endpoints /api/*", () => {
-    test('should return 404 and error message if given invalid endpoint', () => {
+describe('GET /api/users/:user_id', () => {
+    test('should respond with 404 status and error message with non-existent user id', () => {
         return request(app)
-        .get("/api/wrongendpoint")
+        .get("/api/users/66feec40084c536f65f2e987")
         .expect(404)
         .then((response) => {
-            expect(response.body.msg).toBe("404: Page Not Found")
+            expect(response.body.msg).toBe("User Not Found")
         })
     });
+
+    test('should respond with 400 status and error message with invalid user id', () => {
+        return request(app)
+        .get("/api/users/invalid-id")
+        .expect(400)
+        .then((response) => {
+            expect(response.body.msg).toBe("Bad Request")
+        })
+    });
+
+    // test('should respond with single user object', () => {
+    //     return request(app).get("/api/users/")
+    // }); TBC <----------------
+    
     
 });
 
+
+describe("GET Invalid endpoints /api/*", () => {
+  test("should return 404 and error message if given invalid endpoint", () => {
+    return request(app)
+      .get("/api/wrongendpoint")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("404: Page Not Found");
+      });
+  });
+});
