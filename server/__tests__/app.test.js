@@ -173,7 +173,7 @@ describe("POST /api/users", () => {
       });
   });
 
-  test("should respond with 200 status and return newly created user for valid data", () => {
+  test("should respond with 201 status and return newly created user for valid data", () => {
     const validUserData = {
       name: "Valid User",
       email: "validuser@email.com",
@@ -184,7 +184,7 @@ describe("POST /api/users", () => {
     return request(app)
       .post("/api/users")
       .send(validUserData)
-      .expect(200)
+      .expect(201)
       .then((response) => {
         const { user } = response.body;
         expect(user).toEqual(expect.any(Object));
@@ -192,6 +192,30 @@ describe("POST /api/users", () => {
         expect(user.email).toBe(validUserData.email);
         expect(user.role).toBe(validUserData.role);
       });
+  });
+});
+
+describe.only("DELETE /api/users/:user_id", () => {
+  test("should respond with 404 status when given non-existent id", () => {
+    return request(app)
+      .delete("/api/users/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("User Not Found");
+      });
+  });
+
+  test("should respond with 400 status when given invalid id", () => {
+    return request(app)
+      .delete("/api/users/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 204 status when user is deleted (no return)", () => {
+    return request(app).delete(`/api/users/${validUserId}`).expect(204);
   });
 });
 
