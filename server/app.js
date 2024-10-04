@@ -5,7 +5,7 @@ const connectDB = require("./database/connection");
 const User = require("./db-models/userModel");
 const Event = require("./db-models/eventModel");
 
-const { getUsers, getUserById } = require("./controllers/users.controllers.js");
+const { getUsers, getUserById, patchUser } = require("./controllers/users.controllers.js");
 
 app.use(cors());
 app.use(express.json());
@@ -17,28 +17,8 @@ app.get("/", (req, res, next) => {
 });
 
 app.get("/api/users", getUsers);
-app.get("/api/users/:id", getUserById);
-
-app.patch("/api/users/:id", async (req, res, next) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: `User with ID ${req.params.id} doesn't exist` });
-    }
-
-    const updatedUser = await User.findById(req.params.id);
-    res.status(200).json({
-      isSuccessful: true,
-      updatedUser,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-});
+app.get("/api/users/:user_id", getUserById);
+app.patch("/api/users/:user_id", patchUser);
 
 app.post("/api/users", async (req, res, next) => {
   //   console.log(req.body);
