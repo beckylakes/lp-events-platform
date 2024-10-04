@@ -2,6 +2,7 @@ const {
   selectAllUsers,
   selectUserById,
   updateUser,
+  insertUser,
 } = require("../models/users.models.js");
 
 function getUsers(req, res, next) {
@@ -37,4 +38,15 @@ function patchUser(req, res, next) {
     });
 }
 
-module.exports = { getUsers, getUserById, patchUser };
+function postUser(req, res, next) {
+  const new_user = req.body;
+  return insertUser(new_user)
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+module.exports = { getUsers, getUserById, patchUser, postUser };

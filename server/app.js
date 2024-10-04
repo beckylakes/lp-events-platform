@@ -5,7 +5,7 @@ const connectDB = require("./database/connection");
 const User = require("./db-models/userModel");
 const Event = require("./db-models/eventModel");
 
-const { getUsers, getUserById, patchUser } = require("./controllers/users.controllers.js");
+const { getUsers, getUserById, patchUser, postUser } = require("./controllers/users.controllers.js");
 
 app.use(cors());
 app.use(express.json());
@@ -19,21 +19,7 @@ app.get("/", (req, res, next) => {
 app.get("/api/users", getUsers);
 app.get("/api/users/:user_id", getUserById);
 app.patch("/api/users/:user_id", patchUser);
-
-app.post("/api/users", async (req, res, next) => {
-  //   console.log(req.body);
-  try {
-    const user = await User.create(req.body);
-    res.status(200).json({
-      isSuccessful: true,
-      user,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-});
+app.post("/api/users", postUser)
 
 app.delete("/api/users/:id", async (req, res, next) => {
   try {
@@ -55,7 +41,7 @@ app.use((err, req, res, next) => {
   if (err.statusCode && err.msg) {
     res.status(err.statusCode).send(err);
   } else {
-    if (err.name === "CastError") {
+    if (err.name === "CastError" || err.name === "ValidationError") {
       res.status(400).json({ msg: "Bad Request" });
     }
   }

@@ -158,6 +158,43 @@ describe("PATCH /api/users/:user_id", () => {
   });
 });
 
+describe("POST /api/users", () => {
+  test("should respond with 400 status and error message when required fields are missing", () => {
+    const invalidUserData = {
+      email: "invalidUser@email.com",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(invalidUserData)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status and return newly created user for valid data", () => {
+    const validUserData = {
+      name: "Valid User",
+      email: "validuser@email.com",
+      password: "securepassword123",
+      role: "member",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(validUserData)
+      .expect(200)
+      .then((response) => {
+        const { user } = response.body;
+        expect(user).toEqual(expect.any(Object));
+        expect(user.name).toBe(validUserData.name);
+        expect(user.email).toBe(validUserData.email);
+        expect(user.role).toBe(validUserData.role);
+      });
+  });
+});
+
 describe("GET Invalid endpoints /api/*", () => {
   test("should return 404 and error message if given invalid endpoint", () => {
     return request(app)

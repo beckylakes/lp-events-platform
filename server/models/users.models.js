@@ -37,13 +37,12 @@ function updateUser(user_id, body) {
   return User.findByIdAndUpdate(user_id, body).then(() => {
     return selectUserById(user_id)
   })
-
-  // return Promise.all([
-  //   User.findByIdAndUpdate(user_id, body),
-  //   selectUserById(user_id),
-  // ]).then((result) => {
-  //   console.log(result);
-  // });
 }
 
-module.exports = { selectAllUsers, selectUserById, updateUser };
+function insertUser(new_user) {
+  return User.create(new_user).then((result) => {
+    return result
+  })
+}
+
+module.exports = { selectAllUsers, selectUserById, updateUser, insertUser };
