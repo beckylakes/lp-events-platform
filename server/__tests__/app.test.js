@@ -195,7 +195,7 @@ describe("POST /api/users", () => {
   });
 });
 
-describe.only("DELETE /api/users/:user_id", () => {
+describe("DELETE /api/users/:user_id", () => {
   test("should respond with 404 status when given non-existent id", () => {
     return request(app)
       .delete("/api/users/66feec40084c536f65f2e987")
