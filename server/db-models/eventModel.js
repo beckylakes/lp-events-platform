@@ -24,7 +24,6 @@ const eventSchema = mongoose.Schema(
     },
     endTime: {
       type: Date,
-      required: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
