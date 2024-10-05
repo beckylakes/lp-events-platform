@@ -48,6 +48,10 @@ const eventSchema = mongoose.Schema(
       type: [String],
       default: [],
     },
+    pictures: {
+      type: [String],
+      default: []
+    }
   },
   { timestamps: true }
 );
