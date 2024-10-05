@@ -2,10 +2,20 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const connectDB = require("./database/connection");
-const User = require("./db-models/userModel");
-const Event = require("./db-models/eventModel");
-
-const { getUsers, getUserById, patchUser, postUser, deleteUserByID } = require("./controllers/users.controllers.js");
+const {
+  getUsers,
+  getUserById,
+  patchUser,
+  postUser,
+  deleteUserByID,
+} = require("./controllers/users.controllers.js");
+const {
+  getEvents,
+  getEventById,
+  patchEvent,
+  postEvent,
+  deleteEventByID,
+} = require("./controllers/events.controllers.js");
 
 app.use(cors());
 app.use(express.json());
@@ -19,8 +29,14 @@ app.get("/", (req, res, next) => {
 app.get("/api/users", getUsers);
 app.get("/api/users/:user_id", getUserById);
 app.patch("/api/users/:user_id", patchUser);
-app.post("/api/users", postUser)
-app.delete("/api/users/:user_id", deleteUserByID)
+app.post("/api/users", postUser);
+app.delete("/api/users/:user_id", deleteUserByID);
+
+app.get("/api/events", getEvents);
+app.get("/api/events/:event_id", getEventById);
+app.patch("/api/events/:event_id", patchEvent);
+app.post("/api/events", postEvent);
+app.delete("/api/events/:event_id", deleteEventByID);
 
 app.use((err, req, res, next) => {
   if (err.statusCode && err.msg) {

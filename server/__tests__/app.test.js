@@ -1,9 +1,10 @@
 const request = require("supertest");
 const app = require("../app.js");
-const connectDB = require("../database/connection.js");
+// const connectDB = require("../database/connection.js");
 const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
 const User = require("../db-models/userModel.js");
+const Event = require("../db-models/eventModel.js");
 
 // Connect & seed db before running test suite to ensure consistent data
 beforeEach(async () => {
@@ -11,6 +12,8 @@ beforeEach(async () => {
   const user = await User.findOne();
   validUserId = user._id.toString();
   dateCreated = user.createdAt.toISOString();
+  const event = await Event.findOne();
+  validEventId = event._id.toString();
   // updatedUserTime = user.updatedAt.toISOString();
 });
 
@@ -48,7 +51,6 @@ describe("GET /api/users", () => {
             role: expect.any(String),
             attendingEvents: expect.any(Array),
             createdEvents: expect.any(Array),
-            // _v: expect.any(Date),
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
           });
@@ -127,10 +129,10 @@ describe("PATCH /api/users/:user_id", () => {
           password: "abc123",
           role: "staff",
           attendingEvents: [],
-          createdEvents: [],
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
         });
+        expect(user.createdEvents).toEqual(expect.arrayContaining([expect.any(String)]));
       });
   });
 
@@ -150,10 +152,10 @@ describe("PATCH /api/users/:user_id", () => {
           password: "abc123",
           role: "staff",
           attendingEvents: [],
-          createdEvents: [],
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
         });
+        expect(user.createdEvents).toEqual(expect.arrayContaining([expect.any(String)]));
       });
   });
 });
@@ -216,6 +218,214 @@ describe("DELETE /api/users/:user_id", () => {
 
   test("should respond with 204 status when user is deleted (no return)", () => {
     return request(app).delete(`/api/users/${validUserId}`).expect(204);
+  });
+});
+
+describe("GET /api/events", () => {
+  test("should respond with an array of expected length", () => {
+    return request(app)
+      .get("/api/events")
+      .expect(200)
+      .then(({ body }) => {
+        const { events } = body;
+        expect(events).toBeInstanceOf(Array);
+        expect(events).toHaveLength(4);
+      });
+  });
+
+  test("should respond with an event object with expected properties", () => {
+    return request(app)
+      .get("/api/events")
+      .expect(200)
+      .then(({ body }) => {
+        const { events } = body;
+        expect(events).toHaveLength(4);
+        events.forEach((event) => {
+          expect(event).toMatchObject({
+            _id: expect.any(String),
+            title: expect.any(String),
+            description: expect.any(String),
+            location: expect.any(String),
+            date: expect.any(String),
+            startTime: expect.any(String),
+            endTime: expect.any(String),
+            createdBy: expect.any(String),
+            price: expect.any(Number),
+            attendees: expect.any(Array),
+            isPaid: expect.any(Boolean),
+            tags: expect.any(Array),
+          });
+        });
+      });
+  });
+});
+
+describe("GET /api/events/:event_id", () => {
+  test("should respond with 404 status and error message with valid non-existent event id", () => {
+    return request(app)
+      .get("/api/events/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with 400 status and error message with invalid event id", () => {
+    return request(app)
+      .get("/api/events/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status and event data for valid event id", () => {
+    return request(app)
+      .get(`/api/events/${validEventId}`)
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toEqual(expect.any(Object));
+        expect(event._id).toBe(validEventId);
+      });
+  });
+});
+
+describe("PATCH /api/events/:event_id", () => {
+  test("should respond with a 404 status with non-existent event id", () => {
+    return request(app)
+      .patch("/api/events/66feec40084c536f65f2e987")
+      .send({ title: "neweventtitle" })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with a 400 status code if event id is invalid", () => {
+    return request(app)
+      .patch("/api/events/invalid-id")
+      .send({ title: "neweventtitle" })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status code and return updated event with nothing else changing", () => {
+    return request(app)
+      .patch(`/api/events/${validEventId}`)
+      .send({ title: "Happy Hour at Local Bar" })
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toMatchObject({
+          _id: `${validEventId}`,
+          title: "Happy Hour at Local Bar",
+          description: 'Join us for a relaxing community yoga session to improve your flexibility and mental clarity.',
+          location: 'Central Park, New York',
+          date: '2024-11-10T00:00:00.000Z',
+          startTime: '2024-11-10T09:00:00.000Z',
+          endTime: '2024-11-10T10:30:00.000Z',
+          createdBy: `${validUserId}`,
+          price: 0,
+          attendees: [],
+          isPaid: false,
+          tags: [ 'yoga', 'health', 'community' ],
+        });
+      });
+  });
+
+  test("should return unchanged event object if no changes are made", () => {
+    return request(app)
+      .patch(`/api/events/${validEventId}`)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toMatchObject(    {
+          _id: `${validEventId}`,
+          title: 'Community Yoga',
+          description: 'Join us for a relaxing community yoga session to improve your flexibility and mental clarity.',
+          location: 'Central Park, New York',
+          date: '2024-11-10T00:00:00.000Z',
+          startTime: '2024-11-10T09:00:00.000Z',
+          endTime: '2024-11-10T10:30:00.000Z',
+          createdBy: `${validUserId}`,
+          price: 0,
+          attendees: [],
+          isPaid: false,
+          tags: [ 'yoga', 'health', 'community' ],
+        });
+      });
+  });
+});
+
+describe("POST /api/events", () => {
+  test("should respond with 400 status and error message when required fields are missing", () => {
+    const invalidEventData = {
+      title: "Best Event Ever",
+    };
+
+    return request(app)
+      .post("/api/events")
+      .send(invalidEventData)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 201 status and return newly created event for valid data", () => {
+    const validEventData = {
+      title: "Valid and Exciting Event",
+      description: "This is a test description",
+      location: "On Venus",
+      date: new Date("3000-10-04").toISOString(),
+      startTime: new Date().toISOString(), 
+      createdBy: `${validUserId}`
+    };
+
+    return request(app)
+      .post("/api/events")
+      .send(validEventData)
+      .expect(201)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toEqual(expect.any(Object));
+        expect(event.title).toBe(validEventData.title);
+        expect(event.description).toBe(validEventData.description);
+        expect(event.location).toBe(validEventData.location);
+        expect(event.date).toBe(validEventData.date);
+        expect(event.startTime).toBe(validEventData.startTime);
+        expect(event.createdBy).toBe(validEventData.createdBy);
+      });
+  });
+});
+
+describe("DELETE /api/events/:event_id", () => {
+  test("should respond with 404 status when given non-existent id", () => {
+    return request(app)
+      .delete("/api/events/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with 400 status when given invalid id", () => {
+    return request(app)
+      .delete("/api/events/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 204 status when user is deleted (no return)", () => {
+    return request(app).delete(`/api/events/${validEventId}`).expect(204);
   });
 });
 
