@@ -1,3 +1,4 @@
+require("dotenv").config({})
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -15,6 +16,7 @@ const {
   patchEvent,
   postEvent,
   deleteEventByID,
+  getTMEvents,
 } = require("./controllers/events.controllers.js");
 
 app.use(cors());
@@ -37,6 +39,12 @@ app.get("/api/events/:event_id", getEventById);
 app.patch("/api/events/:event_id", patchEvent);
 app.post("/api/events", postEvent);
 app.delete("/api/events/:event_id", deleteEventByID);
+
+//GET Request to get all events
+app.get("/api/ticketmaster/events", getTMEvents)
+//GET request to get event by id
+//GET request to get pics of certain event by id
+//GET request for search suggestions for splash page
 
 app.use((err, req, res, next) => {
   if (err.statusCode && err.msg) {

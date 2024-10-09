@@ -1,10 +1,13 @@
+require("dotenv").config();
 const {
   selectAllEvents,
   selectEventById,
   updateEvent,
   insertEvent,
-  deleteEvent
+  deleteEvent,
 } = require("../models/events.models.js");
+
+const API_KEY = process.env.API_KEY;
 
 function getEvents(req, res, next) {
   return selectAllEvents()
@@ -61,10 +64,26 @@ function deleteEventByID(req, res, next) {
     });
 }
 
+function getTMEvents(req, res, next) {
+  return fetch(
+    `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&apikey=${API_KEY}`
+  )
+    .then((response) => {
+      const data = response.json();
+      return data.then(({ _embedded }) => {
+        res.status(200).send(_embedded);
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   getEvents,
   getEventById,
   patchEvent,
   postEvent,
   deleteEventByID,
+  getTMEvents,
 };
