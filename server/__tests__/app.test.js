@@ -132,7 +132,9 @@ describe("PATCH /api/users/:user_id", () => {
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
         });
-        expect(user.createdEvents).toEqual(expect.arrayContaining([expect.any(String)]));
+        expect(user.createdEvents).toEqual(
+          expect.arrayContaining([expect.any(String)])
+        );
       });
   });
 
@@ -155,7 +157,9 @@ describe("PATCH /api/users/:user_id", () => {
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
         });
-        expect(user.createdEvents).toEqual(expect.arrayContaining([expect.any(String)]));
+        expect(user.createdEvents).toEqual(
+          expect.arrayContaining([expect.any(String)])
+        );
       });
   });
 });
@@ -324,16 +328,17 @@ describe("PATCH /api/events/:event_id", () => {
         expect(event).toMatchObject({
           _id: `${validEventId}`,
           title: "Happy Hour at Local Bar",
-          description: 'Join us for a relaxing community yoga session to improve your flexibility and mental clarity.',
-          location: 'Central Park, New York',
-          date: '2024-11-10T00:00:00.000Z',
-          startTime: '2024-11-10T09:00:00.000Z',
-          endTime: '2024-11-10T10:30:00.000Z',
+          description:
+            "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
+          location: "Central Park, New York",
+          date: "2024-11-10T00:00:00.000Z",
+          startTime: "2024-11-10T09:00:00.000Z",
+          endTime: "2024-11-10T10:30:00.000Z",
           createdBy: `${validUserId}`,
           price: 0,
           attendees: [],
           isPaid: false,
-          tags: [ 'yoga', 'health', 'community' ],
+          tags: ["yoga", "health", "community"],
         });
       });
   });
@@ -345,19 +350,20 @@ describe("PATCH /api/events/:event_id", () => {
       .expect(200)
       .then((response) => {
         const { event } = response.body;
-        expect(event).toMatchObject(    {
+        expect(event).toMatchObject({
           _id: `${validEventId}`,
-          title: 'Community Yoga',
-          description: 'Join us for a relaxing community yoga session to improve your flexibility and mental clarity.',
-          location: 'Central Park, New York',
-          date: '2024-11-10T00:00:00.000Z',
-          startTime: '2024-11-10T09:00:00.000Z',
-          endTime: '2024-11-10T10:30:00.000Z',
+          title: "Community Yoga",
+          description:
+            "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
+          location: "Central Park, New York",
+          date: "2024-11-10T00:00:00.000Z",
+          startTime: "2024-11-10T09:00:00.000Z",
+          endTime: "2024-11-10T10:30:00.000Z",
           createdBy: `${validUserId}`,
           price: 0,
           attendees: [],
           isPaid: false,
-          tags: [ 'yoga', 'health', 'community' ],
+          tags: ["yoga", "health", "community"],
         });
       });
   });
@@ -384,8 +390,8 @@ describe("POST /api/events", () => {
       description: "This is a test description",
       location: "On Venus",
       date: new Date("3000-10-04").toISOString(),
-      startTime: new Date().toISOString(), 
-      createdBy: `${validUserId}`
+      startTime: new Date().toISOString(),
+      createdBy: `${validUserId}`,
     };
 
     return request(app)
@@ -426,6 +432,18 @@ describe("DELETE /api/events/:event_id", () => {
 
   test("should respond with 204 status when user is deleted (no return)", () => {
     return request(app).delete(`/api/events/${validEventId}`).expect(204);
+  });
+});
+
+describe.only("GET TicketMaster events /api/tikcetmaster/events", () => {
+  test("should respond with TicketMaster event object", () => {
+    return request(app)
+      .get("/api/ticketmaster/events")
+      .expect(200)
+      .then((response) => {
+        const {events} = response.body
+        expect(events).toBeInstanceOf(Array)
+      });
   });
 });
 
