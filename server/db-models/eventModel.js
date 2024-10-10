@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const eventSchema = mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
     },
-    description: {
+    info: {
       type: String,
       required: true,
     },
@@ -48,7 +48,7 @@ const eventSchema = mongoose.Schema(
       type: [String],
       default: [],
     },
-    pictures: {
+    images: {
       type: [String],
       default: []
     }

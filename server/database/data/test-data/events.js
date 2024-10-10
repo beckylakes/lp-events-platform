@@ -1,7 +1,7 @@
 module.exports = [
     {
-      title: "Community Yoga",
-      description: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
+      name: "Community Yoga",
+      info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
       location: "Central Park, New York",
       date: new Date("2024-11-10T00:00:00Z"),
       startTime: new Date("2024-11-10T09:00:00Z"),
@@ -9,10 +9,11 @@ module.exports = [
       createdBy: null,
       price: 0,
       tags: ["yoga", "health", "community"],
+      images: [],
     },
     {
-      title: "Charity Ball",
-      description: "A formal charity ball to support local communities. Join us for dinner, dance, and good company.",
+      name: "Charity Ball",
+      info: "A formal charity ball to support local communities. Join us for dinner, dance, and good company.",
       location: "Grand Hotel Ballroom, London",
       date: new Date("2024-12-05T00:00:00Z"),
       startTime: new Date("2024-12-05T18:00:00Z"),
@@ -20,10 +21,11 @@ module.exports = [
       createdBy: null,
       price: 100,
       tags: ["charity", "ball", "formal", "fundraiser"],
+      images: [],
     },
     {
-      title: "Free Coffee & Pastries Lunch",
-      description: "Enjoy a casual meetup with free coffee and pastries. Open to all.",
+      name: "Free Coffee & Pastries Lunch",
+      info: "Enjoy a casual meetup with free coffee and pastries. Open to all.",
       location: "Downtown Coffee House, San Francisco",
       date: new Date("2024-11-15T00:00:00Z"),
       startTime: new Date("2024-11-15T12:00:00Z"),
@@ -31,10 +33,11 @@ module.exports = [
       createdBy: null,
       price: 0,
       tags: ["coffee", "meetup", "community"],
+      images: [],
     },
     {
-      title: "Christmas Party",
-      description: "Celebrate the festive season with us at our annual Christmas party. Enjoy music, food, and great company.",
+      name: "Christmas Party",
+      info: "Celebrate the festive season with us at our annual Christmas party. Enjoy music, food, and great company.",
       location: "Riverside Community Center, Chicago",
       date: new Date("2024-12-24T00:00:00Z"),
       startTime: new Date("2024-12-24T19:00:00Z"),
@@ -42,6 +45,7 @@ module.exports = [
       createdBy: null,
       price: 20,
       tags: ["christmas", "party", "holiday", "community"],
+      images: [],
     }
   ];
   
