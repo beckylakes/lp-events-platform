@@ -1,29 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { getAllEvents } from "./utils/api";
-import EventCard from "./components/EventCard";
+import { Routes, Route, useLocation } from "react-router-dom";
+import HomePage from "./components/HomePage";
+import Header from "./components/Header";
+import LoginPage from "./components/LoginPage";
+import SignUpPage from "./components/SignUpPage";
 
 const App = () => {
-  const [events, setEvents] = useState([]);
-  const [error, setError] = useState(null);
+  const location = useLocation();
+  const noHeaderPaths = ["/login", "/signup"]
 
-  useEffect(() => {
-    getAllEvents()
-      .then((combinedEvents) => {
-        setEvents(combinedEvents);
-      })
-      .catch((err) => {
-        console.log(err);
-        setError(err);
-      });
-  }, []);
 
   return (
     <>
-      <ul>
-        {events.map((event, index) => {
-          return <EventCard key={index} event={event} />;
-        })}
-      </ul>
+      {!noHeaderPaths.includes(location.pathname) && <Header />}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        {/* <Route path="/user/mytickets" element={<TicketsPage />} /> */}
+      </Routes>
     </>
   );
 };
