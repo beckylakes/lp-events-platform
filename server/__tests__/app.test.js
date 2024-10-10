@@ -435,14 +435,88 @@ describe("DELETE /api/events/:event_id", () => {
   });
 });
 
-describe.only("GET TicketMaster events /api/tikcetmaster/events", () => {
+describe.only("GET TicketMaster events /api/ticketmaster/events", () => {
   test("should respond with TicketMaster event object", () => {
     return request(app)
       .get("/api/ticketmaster/events")
       .expect(200)
       .then((response) => {
-        const {events} = response.body
-        expect(events).toBeInstanceOf(Array)
+        const responseBody = response.body;
+        expect(responseBody).toBeInstanceOf(Object);
+        if (Object.keys(responseBody).length === 0) {
+          expect(responseBody).toEqual({});
+        } else {
+          const { events } = responseBody;
+          expect(events).toBeInstanceOf(Array);
+          events.forEach((event) => {
+            expect(event).toMatchObject({
+              name: expect.any(String),
+              type: expect.any(String),
+              id: expect.any(String),
+              test: expect.any(Boolean),
+              url: expect.any(String),
+              locale: expect.any(String),
+              images: expect.any(Array),
+              sales: expect.any(Object),
+              dates: expect.any(Object),
+              classifications: expect.any(Array),
+              _links: expect.any(Object),
+            });
+
+            // Check optional fields
+            if (event.promoter) {
+              expect(event.promoter).toBeInstanceOf(Object);
+            }
+
+            if (event.seatmap) {
+              expect(event.seatmap).toBeInstanceOf(Object);
+            }
+
+            if (event.promoters) {
+              expect(event.promoters).toBeInstanceOf(Array);
+            }
+
+            if (event.pleaseNote) {
+              expect(event.pleaseNote).toEqual(expect.any(String));
+            }
+
+            if (event.outlets) {
+              expect(event.outlets).toBeInstanceOf(Object);
+            }
+
+            if (event.info) {
+              expect(event.info).toEqual(expect.any(String));
+            }
+
+            if (event.priceRanges) {
+              expect(event.priceRanges).toBeInstanceOf(Array);
+            }
+
+            if (event.products) {
+              expect(event.products).toBeInstanceOf(Array);
+            }
+
+            if (event.accessibility) {
+              expect(event.accessibility).toBeInstanceOf(Object);
+            }
+
+            if (event.ticketLimit) {
+              expect(event.ticketLimit).toBeInstanceOf(Object);
+            }
+
+            if (event.ageRestrictions) {
+              expect(event.ageRestrictions).toBeInstanceOf(Object);
+            }
+
+            if (event.ticketing) {
+              expect(event.ticketing).toBeInstanceOf(Object);
+            }
+
+            if (event._embedded) {
+              expect(event._embedded).toBeInstanceOf(Object);
+            }
+          });
+        }
       });
   });
 });
