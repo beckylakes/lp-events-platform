@@ -247,8 +247,8 @@ describe("GET /api/events", () => {
         events.forEach((event) => {
           expect(event).toMatchObject({
             _id: expect.any(String),
-            title: expect.any(String),
-            description: expect.any(String),
+            name: expect.any(String),
+            info: expect.any(String),
             location: expect.any(String),
             date: expect.any(String),
             startTime: expect.any(String),
@@ -258,13 +258,14 @@ describe("GET /api/events", () => {
             attendees: expect.any(Array),
             isPaid: expect.any(Boolean),
             tags: expect.any(Array),
+            images: expect.any(Array)
           });
         });
       });
   });
 });
 
-describe("GET /api/events/:event_id", () => {
+describe.only("GET /api/events/:event_id", () => {
   test("should respond with 404 status and error message with valid non-existent event id", () => {
     return request(app)
       .get("/api/events/66feec40084c536f65f2e987")
@@ -289,6 +290,7 @@ describe("GET /api/events/:event_id", () => {
       .expect(200)
       .then((response) => {
         const { event } = response.body;
+        console.log(Object.keys(event))
         expect(event).toEqual(expect.any(Object));
         expect(event._id).toBe(validEventId);
       });
@@ -299,7 +301,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 404 status with non-existent event id", () => {
     return request(app)
       .patch("/api/events/66feec40084c536f65f2e987")
-      .send({ title: "neweventtitle" })
+      .send({ name: "neweventtitle" })
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
@@ -310,7 +312,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 400 status code if event id is invalid", () => {
     return request(app)
       .patch("/api/events/invalid-id")
-      .send({ title: "neweventtitle" })
+      .send({ name: "neweventtitle" })
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
@@ -321,14 +323,14 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with 200 status code and return updated event with nothing else changing", () => {
     return request(app)
       .patch(`/api/events/${validEventId}`)
-      .send({ title: "Happy Hour at Local Bar" })
+      .send({ name: "Happy Hour at Local Bar" })
       .expect(200)
       .then((response) => {
         const { event } = response.body;
         expect(event).toMatchObject({
           _id: `${validEventId}`,
-          title: "Happy Hour at Local Bar",
-          description:
+          name: "Happy Hour at Local Bar",
+          info:
             "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
           location: "Central Park, New York",
           date: "2024-11-10T00:00:00.000Z",
@@ -339,6 +341,7 @@ describe("PATCH /api/events/:event_id", () => {
           attendees: [],
           isPaid: false,
           tags: ["yoga", "health", "community"],
+          images: []
         });
       });
   });
@@ -352,8 +355,8 @@ describe("PATCH /api/events/:event_id", () => {
         const { event } = response.body;
         expect(event).toMatchObject({
           _id: `${validEventId}`,
-          title: "Community Yoga",
-          description:
+          name: "Community Yoga",
+          info:
             "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
           location: "Central Park, New York",
           date: "2024-11-10T00:00:00.000Z",
@@ -364,6 +367,7 @@ describe("PATCH /api/events/:event_id", () => {
           attendees: [],
           isPaid: false,
           tags: ["yoga", "health", "community"],
+          images: []
         });
       });
   });
@@ -372,7 +376,7 @@ describe("PATCH /api/events/:event_id", () => {
 describe("POST /api/events", () => {
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidEventData = {
-      title: "Best Event Ever",
+      name: "Best Event Ever",
     };
 
     return request(app)
@@ -386,8 +390,8 @@ describe("POST /api/events", () => {
 
   test("should respond with 201 status and return newly created event for valid data", () => {
     const validEventData = {
-      title: "Valid and Exciting Event",
-      description: "This is a test description",
+      name: "Valid and Exciting Event",
+      info: "This is a test info",
       location: "On Venus",
       date: new Date("3000-10-04").toISOString(),
       startTime: new Date().toISOString(),
@@ -401,8 +405,8 @@ describe("POST /api/events", () => {
       .then((response) => {
         const { event } = response.body;
         expect(event).toEqual(expect.any(Object));
-        expect(event.title).toBe(validEventData.title);
-        expect(event.description).toBe(validEventData.description);
+        expect(event.name).toBe(validEventData.name);
+        expect(event.info).toBe(validEventData.info);
         expect(event.location).toBe(validEventData.location);
         expect(event.date).toBe(validEventData.date);
         expect(event.startTime).toBe(validEventData.startTime);
