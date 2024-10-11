@@ -10,11 +10,14 @@ const Login = () => {
     const handleSubmit = (e) => {
       e.preventDefault()
       loginUser(email, password).then((response) => {
-        if(response === "Success"){
+        if(response === "Logged in successfully"){
+            console.log(response)
             navigate('/')
         }
       }).catch((err) => {
-          console.log(err)
+        // Sorry! That password is incorrect
+        // Sorry! That user doesn't exist
+          console.log(err.response.data.msg)
       })
     }
   
