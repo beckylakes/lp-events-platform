@@ -23,3 +23,15 @@ export const getAllEvents = () => {
     }
   );
 };
+
+export const postUser = (username, email, password) => {
+  return api.post("users", { username, email, password }).then(({ data }) => {
+    return data;
+  });
+};
+
+export const loginUser = (email, password) => {
+    return api.post("users/login", { email, password }).then(({ data }) => {
+      return data.msg;
+    });
+  };
