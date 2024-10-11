@@ -26,6 +26,7 @@ export const getAllEvents = () => {
 
 export const postUser = (username, email, password) => {
   return api.post("users", { username, email, password }).then(({ data }) => {
+    console.log(data)
     return data;
   });
 };
