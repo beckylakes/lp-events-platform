@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { postUser } from "../utils/api";
+import { postUser } from "../api/api";
 
 const SignUp = () => {
   const [username, setUsername] = useState();
@@ -10,30 +10,33 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validatePassword(password)) {
-        setErrorMessage(
-          "Password must contain: at least 8 characters, at least one uppercase letter, one number, and one special character."
-        );
-        return;
-      }
-    
-    postUser(username, email, password).then(({user, msg}) => {
+      setErrorMessage(
+        "Password must contain: at least 8 characters, at least one uppercase letter, one number, and one special character."
+      );
+      return;
+    }
+
+    postUser(username, email, password)
+      .then(({ user, msg }) => {
         // New user created
-        console.log(msg)
-        navigate('/')
-        setErrorMessage(null)
-    }).catch((err) => {
+        console.log(msg);
+        navigate("/");
+        setErrorMessage(null);
+      })
+      .catch((err) => {
         //Sorry! That email is already taken
-        console.log(err.response.data.msg)
-    })
-  }
+        console.log(err.response.data.msg);
+      });
+  };
 
   return (
     <div className="wrapper">
@@ -59,7 +62,12 @@ const SignUp = () => {
         </div>
         <div className="input-box">
           <label htmlFor="password">Password</label>
-          <input type="password" placeholder="Enter Password" required onChange={(e) => setPassword(e.target.value)}></input>
+          <input
+            type="password"
+            placeholder="Enter Password"
+            required
+            onChange={(e) => setPassword(e.target.value)}
+          ></input>
         </div>
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         <button type="submit">Sign Up</button>
