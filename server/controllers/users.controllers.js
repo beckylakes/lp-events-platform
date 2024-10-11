@@ -42,6 +42,10 @@ function patchUser(req, res, next) {
 
 function postUser(req, res, next) {
   const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).send({ msg: "Bad Request" });
+  }
+
   return insertUser({ username, email, password })
     .then((user) => {
       res.status(201).send({ msg: "New user created", user });
