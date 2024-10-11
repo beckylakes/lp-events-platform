@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import Header from "./components/Header";
@@ -10,7 +11,7 @@ const App = () => {
 
 
   return (
-    <>
+    <main className="App">
       {!noHeaderPaths.includes(location.pathname) && <Header />}
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -18,7 +19,7 @@ const App = () => {
         <Route path="/signup" element={<SignUpPage />} />
         {/* <Route path="/user/mytickets" element={<TicketsPage />} /> */}
       </Routes>
-    </>
+    </main>
   );
 };
 
