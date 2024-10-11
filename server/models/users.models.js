@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const User = require("../db-models/userModel");
 
 function selectAllUsers() {
@@ -80,24 +80,26 @@ function deleteUser(user_id) {
   });
 }
 
-function findUser(email, password) {
-  return User.findOne({ email }).then((user) => {
-    if (!user) {
-      return Promise.reject({
-        statusCode: 401,
-        msg: "Sorry! That user doesn't exist",
-      });
-    }
+async function findUser(email, password) {
+  const user = await User.findOne({ email });
+  
+  if (!user) {
+    return Promise.reject({
+      statusCode: 401,
+      msg: "Sorry! That user doesn't exist",
+    });
+  }
 
-    if (user.password !== password) {
-      return Promise.reject({
-        statusCode: 401,
-        msg: "Sorry! That password is incorrect",
-      });
-    } else {
-      return user;
-    }
-  });
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordCorrect) {
+    return Promise.reject({
+      statusCode: 401,
+      msg: "Sorry! That password is incorrect",
+    });
+  }
+
+  return user;
 }
 
 module.exports = {

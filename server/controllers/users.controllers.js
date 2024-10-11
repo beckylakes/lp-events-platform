@@ -70,7 +70,7 @@ function postLogin(req, res, next) {
   const { email, password } = req.body;
   return findUser(email, password)
     .then((user) => {
-      res.status(200).send({ msg: "Success", user });
+      res.status(200).send({ msg: "Logged in successfully", user });
     })
     .catch((err) => {
       next(err);
