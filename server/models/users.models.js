@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const User = require("../db-models/userModel");
 
 function selectAllUsers() {
@@ -39,19 +40,25 @@ function updateUser(user_id, body) {
   });
 }
 
-function insertUser({ username, email, password }) {
-  return User.findOne({ email }).then((existingUser) => {
-    if (existingUser) {
-      return Promise.reject({
-        statusCode: 400,
-        msg: "Sorry! That email is already taken",
-      });
-    } else {
-      return User.create({ username, email, password }).then((result) => {
-        return result;
-      });
-    }
+async function insertUser({ username, email, password }) {
+  const existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "Sorry! That email is already taken",
+    });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const newUser = await User.create({
+    username,
+    email,
+    password: hashedPassword,
   });
+
+  return newUser;
 }
 
 function deleteUser(user_id) {
@@ -73,24 +80,26 @@ function deleteUser(user_id) {
   });
 }
 
-function findUser(email, password) {
-  return User.findOne({ email }).then((user) => {
-    if (!user) {
-      return Promise.reject({
-        statusCode: 401,
-        msg: "Sorry! That user doesn't exist",
-      });
-    }
+async function findUser(email, password) {
+  const user = await User.findOne({ email });
+  
+  if (!user) {
+    return Promise.reject({
+      statusCode: 401,
+      msg: "Sorry! That user doesn't exist",
+    });
+  }
 
-    if (user.password !== password) {
-      return Promise.reject({
-        statusCode: 401,
-        msg: "Sorry! That password is incorrect",
-      });
-    } else {
-      return user;
-    }
-  });
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordCorrect) {
+    return Promise.reject({
+      statusCode: 401,
+      msg: "Sorry! That password is incorrect",
+    });
+  }
+
+  return user;
 }
 
 module.exports = {

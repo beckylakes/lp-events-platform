@@ -11,10 +11,12 @@ const SignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     postUser(username, email, password).then(({user, msg}) => {
+        // New user created
         console.log(msg)
         navigate('/')
     }).catch((err) => {
-        console.log(err)
+        //Sorry! That email is already taken
+        console.log(err.response.data.msg)
     })
   }
 

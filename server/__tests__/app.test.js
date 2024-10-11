@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../app.js");
+const bcrypt = require("bcrypt");
 const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
 const User = require("../db-models/userModel.js");
@@ -205,7 +206,7 @@ describe("POST /api/users", () => {
       .expect(201)
       .then((response) => {
         const { user, msg } = response.body;
-        expect(msg).toBe("New user created")
+        expect(msg).toBe("New user created");
         expect(user).toEqual(expect.any(Object));
         expect(user.username).toBe(validUserData.username);
         expect(user.email).toBe(validUserData.email);
@@ -267,11 +268,19 @@ describe("POST /api/users/login", () => {
       });
   });
 
-  test("should return 200 and a success message on valid login", () => {
+  test("should return 200 and a success message on valid login", async () => {
+    const hashedPassword = await bcrypt.hash("bca123", 12);
+    await User.create({
+      email: "extra@email.com",
+      password: hashedPassword,
+      username: "randomuser",
+      role: "member",
+    });
+
     return request(app)
       .post("/api/users/login")
       .send({
-        email: "random@email.com",
+        email: "extra@email.com",
         password: "bca123",
       })
       .expect(200)
