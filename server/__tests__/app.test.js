@@ -286,7 +286,7 @@ describe("POST /api/users/login", () => {
       .expect(200)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Success");
+        expect(msg).toBe("Logged in successfully");
       });
   });
 });
