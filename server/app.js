@@ -9,6 +9,7 @@ const {
   patchUser,
   postUser,
   deleteUserByID,
+  postLogin,
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -33,6 +34,7 @@ app.get("/api/users/:user_id", getUserById);
 app.patch("/api/users/:user_id", patchUser);
 app.post("/api/users", postUser);
 app.delete("/api/users/:user_id", deleteUserByID);
+app.post("/api/users/login", postLogin)
 
 app.get("/api/events", getEvents);
 app.get("/api/events/:event_id", getEventById);
@@ -48,6 +50,7 @@ app.get("/api/ticketmaster/events/:event_id", getTMEvents)
 app.get("/api/ticketmaster/events/:event_id/pics", getTMEvents)
 //GET request for search suggestions for splash page
 app.get("/api/ticketmaster/events/suggestions", getTMEvents)
+
 
 app.use((err, req, res, next) => {
   if (err.statusCode && err.msg) {
