@@ -6,14 +6,29 @@ const SignUp = () => {
   const [username, setUsername] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (!validatePassword(password)) {
+        setErrorMessage(
+          "Password must contain: at least 8 characters, at least one uppercase letter, one number, and one special character."
+        );
+        return;
+      }
+    
     postUser(username, email, password).then(({user, msg}) => {
         // New user created
         console.log(msg)
         navigate('/')
+        setErrorMessage(null)
     }).catch((err) => {
         //Sorry! That email is already taken
         console.log(err.response.data.msg)
@@ -46,6 +61,7 @@ const SignUp = () => {
           <label htmlFor="password">Password</label>
           <input type="password" placeholder="Enter Password" required onChange={(e) => setPassword(e.target.value)}></input>
         </div>
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         <button type="submit">Sign Up</button>
       </form>
       <p>

@@ -32,6 +32,6 @@ export const postUser = (username, email, password) => {
 
 export const loginUser = (email, password) => {
     return api.post("users/login", { email, password }).then(({ data }) => {
-      return data.msg;
+      return data;
     });
   };

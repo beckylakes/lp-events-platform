@@ -9,9 +9,9 @@ const Login = () => {
   
     const handleSubmit = (e) => {
       e.preventDefault()
-      loginUser(email, password).then((response) => {
-        if(response === "Logged in successfully"){
-            console.log(response)
+      loginUser(email, password).then(({msg, user}) => {
+        if(msg === "Logged in successfully"){
+            console.log(`Logged in successfully as ${user.username}`)
             navigate('/')
         }
       }).catch((err) => {
