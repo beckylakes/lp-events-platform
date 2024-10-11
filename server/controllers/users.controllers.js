@@ -4,6 +4,7 @@ const {
   updateUser,
   insertUser,
   deleteUser,
+  findUser,
 } = require("../models/users.models.js");
 
 function getUsers(req, res, next) {
@@ -40,10 +41,10 @@ function patchUser(req, res, next) {
 }
 
 function postUser(req, res, next) {
-  const new_user = req.body;
-  return insertUser(new_user)
+  const { username, email, password } = req.body;
+  return insertUser({ username, email, password })
     .then((user) => {
-      res.status(201).send({ user });
+      res.status(201).send({ msg: "New user created", user });
     })
     .catch((err) => {
       next(err);
@@ -61,4 +62,22 @@ function deleteUserByID(req, res, next) {
     });
 }
 
-module.exports = { getUsers, getUserById, patchUser, postUser, deleteUserByID };
+function postLogin(req, res, next) {
+  const { email, password } = req.body;
+  return findUser(email, password)
+    .then((user) => {
+      res.status(200).send({ msg: "Success", user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+module.exports = {
+  getUsers,
+  getUserById,
+  patchUser,
+  postUser,
+  deleteUserByID,
+  postLogin,
+};

@@ -39,9 +39,18 @@ function updateUser(user_id, body) {
   });
 }
 
-function insertUser(new_user) {
-  return User.create(new_user).then((result) => {
-    return result;
+function insertUser({ username, email, password }) {
+  return User.findOne({ email }).then((existingUser) => {
+    if (existingUser) {
+      return Promise.reject({
+        statusCode: 400,
+        msg: "Sorry! That email is already taken",
+      });
+    } else {
+      return User.create({ username, email, password }).then((result) => {
+        return result;
+      });
+    }
   });
 }
 
@@ -64,10 +73,31 @@ function deleteUser(user_id) {
   });
 }
 
+function findUser(email, password) {
+  return User.findOne({ email }).then((user) => {
+    if (!user) {
+      return Promise.reject({
+        statusCode: 401,
+        msg: "Sorry! That user doesn't exist",
+      });
+    }
+
+    if (user.password !== password) {
+      return Promise.reject({
+        statusCode: 401,
+        msg: "Sorry! That password is incorrect",
+      });
+    } else {
+      return user;
+    }
+  });
+}
+
 module.exports = {
   selectAllUsers,
   selectUserById,
   updateUser,
   insertUser,
   deleteUser,
+  findUser,
 };

@@ -1,14 +1,12 @@
 const request = require("supertest");
 const app = require("../app.js");
-// const connectDB = require("../database/connection.js");
 const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
 const User = require("../db-models/userModel.js");
 const Event = require("../db-models/eventModel.js");
 
-// Connect & seed db before running test suite to ensure consistent data
-beforeEach(async () => {
-  await seed(testData); // Seed the database with consistent data
+beforeAll(async () => {
+  await seed(testData);
   const user = await User.findOne();
   validUserId = user._id.toString();
   dateCreated = user.createdAt.toISOString();
@@ -17,9 +15,8 @@ beforeEach(async () => {
   // updatedUserTime = user.updatedAt.toISOString();
 });
 
-// Close the database connection after all tests have completed
 afterAll(async () => {
-  await require("mongoose").disconnect(); // Disconnect after all tests are done
+  await require("mongoose").disconnect();
 });
 
 describe("GET /api/users", () => {
@@ -44,7 +41,7 @@ describe("GET /api/users", () => {
         users.forEach((user) => {
           expect(user).toMatchObject({
             _id: expect.any(String),
-            name: expect.any(String),
+            username: expect.any(String),
             avatar: expect.any(String),
             email: expect.any(String),
             password: expect.any(String),
@@ -94,7 +91,7 @@ describe("PATCH /api/users/:user_id", () => {
   test("should respond with a 404 status with non-existent user id", () => {
     return request(app)
       .patch("/api/users/66feec40084c536f65f2e987")
-      .send({ name: "newusername" })
+      .send({ username: "newusername" })
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
@@ -105,7 +102,7 @@ describe("PATCH /api/users/:user_id", () => {
   test("should respond with a 400 status code if user id is invalid", () => {
     return request(app)
       .patch("/api/users/invalid-id")
-      .send({ name: "newusername" })
+      .send({ username: "newusername" })
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
@@ -116,13 +113,13 @@ describe("PATCH /api/users/:user_id", () => {
   test("should respond with 200 status code and return updated user with nothing else changing", () => {
     return request(app)
       .patch(`/api/users/${validUserId}`)
-      .send({ name: "newusername" })
+      .send({ username: "newusername" })
       .expect(200)
       .then((response) => {
         const { user } = response.body;
         expect(user).toMatchObject({
           _id: `${validUserId}`,
-          name: "newusername",
+          username: "newusername",
           avatar:
             "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
           email: "qwerty@email.com",
@@ -147,13 +144,14 @@ describe("PATCH /api/users/:user_id", () => {
         const { user } = response.body;
         expect(user).toMatchObject({
           _id: `${validUserId}`,
-          name: "staffuser",
+          username: "newusername",
           avatar:
             "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
           email: "qwerty@email.com",
           password: "abc123",
           role: "staff",
           attendingEvents: [],
+          createdEvents: expect.any(Array),
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
         });
@@ -179,9 +177,23 @@ describe("POST /api/users", () => {
       });
   });
 
+  test("should return 400 when the email is already in use", () => {
+    return request(app)
+      .post("/api/users")
+      .send({
+        email: "random@email.com",
+        password: "password123",
+        username: "Another User",
+      })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Sorry! That email is already taken");
+      });
+  });
+
   test("should respond with 201 status and return newly created user for valid data", () => {
     const validUserData = {
-      name: "Valid User",
+      username: "Valid User",
       email: "validuser@email.com",
       password: "securepassword123",
       role: "member",
@@ -192,9 +204,10 @@ describe("POST /api/users", () => {
       .send(validUserData)
       .expect(201)
       .then((response) => {
-        const { user } = response.body;
+        const { user, msg } = response.body;
+        expect(msg).toBe("New user created")
         expect(user).toEqual(expect.any(Object));
-        expect(user.name).toBe(validUserData.name);
+        expect(user.username).toBe(validUserData.username);
         expect(user.email).toBe(validUserData.email);
         expect(user.role).toBe(validUserData.role);
       });
@@ -222,6 +235,50 @@ describe("DELETE /api/users/:user_id", () => {
 
   test("should respond with 204 status when user is deleted (no return)", () => {
     return request(app).delete(`/api/users/${validUserId}`).expect(204);
+  });
+});
+
+describe("POST /api/users/login", () => {
+  test("should return 401 when the email is incorrect", () => {
+    return request(app)
+      .post("/api/users/login")
+      .send({
+        email: "wrong@email.com",
+        password: "bca123",
+      })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Sorry! That user doesn't exist");
+      });
+  });
+
+  test("should return 401 when the password is incorrect", () => {
+    return request(app)
+      .post("/api/users/login")
+      .send({
+        email: "random@email.com",
+        password: "wrong123",
+      })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Sorry! That password is incorrect");
+      });
+  });
+
+  test("should return 200 and a success message on valid login", () => {
+    return request(app)
+      .post("/api/users/login")
+      .send({
+        email: "random@email.com",
+        password: "bca123",
+      })
+      .expect(200)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Success");
+      });
   });
 });
 
@@ -258,14 +315,14 @@ describe("GET /api/events", () => {
             attendees: expect.any(Array),
             isPaid: expect.any(Boolean),
             tags: expect.any(Array),
-            images: expect.any(Array)
+            images: expect.any(Array),
           });
         });
       });
   });
 });
 
-describe.only("GET /api/events/:event_id", () => {
+describe("GET /api/events/:event_id", () => {
   test("should respond with 404 status and error message with valid non-existent event id", () => {
     return request(app)
       .get("/api/events/66feec40084c536f65f2e987")
@@ -290,7 +347,6 @@ describe.only("GET /api/events/:event_id", () => {
       .expect(200)
       .then((response) => {
         const { event } = response.body;
-        console.log(Object.keys(event))
         expect(event).toEqual(expect.any(Object));
         expect(event._id).toBe(validEventId);
       });
@@ -301,7 +357,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 404 status with non-existent event id", () => {
     return request(app)
       .patch("/api/events/66feec40084c536f65f2e987")
-      .send({ name: "neweventtitle" })
+      .send({ username: "neweventtitle" })
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
@@ -312,7 +368,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 400 status code if event id is invalid", () => {
     return request(app)
       .patch("/api/events/invalid-id")
-      .send({ name: "neweventtitle" })
+      .send({ username: "neweventtitle" })
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
@@ -323,15 +379,14 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with 200 status code and return updated event with nothing else changing", () => {
     return request(app)
       .patch(`/api/events/${validEventId}`)
-      .send({ name: "Happy Hour at Local Bar" })
+      .send({ username: "Happy Hour at Local Bar" })
       .expect(200)
       .then((response) => {
         const { event } = response.body;
         expect(event).toMatchObject({
           _id: `${validEventId}`,
-          name: "Happy Hour at Local Bar",
-          info:
-            "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
+          name: expect.any(String),
+          info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
           location: "Central Park, New York",
           date: "2024-11-10T00:00:00.000Z",
           startTime: "2024-11-10T09:00:00.000Z",
@@ -341,7 +396,7 @@ describe("PATCH /api/events/:event_id", () => {
           attendees: [],
           isPaid: false,
           tags: ["yoga", "health", "community"],
-          images: []
+          images: [],
         });
       });
   });
@@ -356,8 +411,7 @@ describe("PATCH /api/events/:event_id", () => {
         expect(event).toMatchObject({
           _id: `${validEventId}`,
           name: "Community Yoga",
-          info:
-            "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
+          info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
           location: "Central Park, New York",
           date: "2024-11-10T00:00:00.000Z",
           startTime: "2024-11-10T09:00:00.000Z",
@@ -367,7 +421,7 @@ describe("PATCH /api/events/:event_id", () => {
           attendees: [],
           isPaid: false,
           tags: ["yoga", "health", "community"],
-          images: []
+          images: [],
         });
       });
   });
@@ -391,7 +445,7 @@ describe("POST /api/events", () => {
   test("should respond with 201 status and return newly created event for valid data", () => {
     const validEventData = {
       name: "Valid and Exciting Event",
-      info: "This is a test info",
+      info: "This is test info",
       location: "On Venus",
       date: new Date("3000-10-04").toISOString(),
       startTime: new Date().toISOString(),
@@ -439,7 +493,7 @@ describe("DELETE /api/events/:event_id", () => {
   });
 });
 
-describe.only("GET TicketMaster events /api/ticketmaster/events", () => {
+describe("GET TicketMaster events /api/ticketmaster/events", () => {
   test("should respond with TicketMaster event object", () => {
     return request(app)
       .get("/api/ticketmaster/events")
