@@ -26,13 +26,24 @@ export const getAllEvents = () => {
 
 export const postUser = (username, email, password) => {
   return api.post("users", { username, email, password }).then(({ data }) => {
-    console.log(data)
+    console.log(data);
     return data;
   });
 };
 
 export const loginUser = (email, password) => {
-    return api.post("users/login", { email, password }).then(({ data }) => {
-      return data;
-    });
-  };
+  return api.post("users/login", { email, password }).then(({ data }) => {
+    return data;
+  });
+};
+
+export const getEventById = (id) => {
+  return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
+    if(data.errors){
+      return api.get(`events/${id}`).then(({data}) => {
+        return data.event
+      })
+    }
+    return data;
+  });
+};

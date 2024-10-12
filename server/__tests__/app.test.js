@@ -502,7 +502,7 @@ describe("DELETE /api/events/:event_id", () => {
   });
 });
 
-describe("GET TicketMaster events /api/ticketmaster/events", () => {
+describe("GET /api/ticketmaster/events", () => {
   test("should respond with TicketMaster event object", () => {
     return request(app)
       .get("/api/ticketmaster/events")
@@ -587,6 +587,33 @@ describe("GET TicketMaster events /api/ticketmaster/events", () => {
       });
   });
 });
+
+describe.only('GET /api/ticketmaster/events/:event_id', () => {
+  test("should return 404 when the id for Ticketmaster event is valid but non existent", () => {
+    const invalidTMEventId = "vvG1fZ3MD144Ni"
+
+    return request(app)
+      .get(`/api/ticketmaster/events/${invalidTMEventId}`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should return 200 when the id for Ticketmaster event is valid", () => {
+    const validTMEventId = "vvG1fZ9MD144Ni"
+
+    return request(app)
+      .get(`/api/ticketmaster/events/${validTMEventId}`)
+      .expect(200)
+      .then((response) => {
+        const event = response.body
+        expect(event).toBeInstanceOf(Object)
+        expect(event.id).toBe(validTMEventId)
+      });
+  });
+});
+
 
 describe("GET Invalid endpoints /api/*", () => {
   test("should return 404 and error message if given invalid endpoint", () => {

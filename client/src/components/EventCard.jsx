@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
 const EventCard = ({ event }) => {
-  const { name, info, images } = event
+  const { id, name, info, images } = event
   
   return (
-    <div>
+    <li>
       <h4>{name}</h4>
       <p>{info}</p>
-    </div>
+    </li>
   );
 };
 

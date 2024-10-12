@@ -79,6 +79,26 @@ function getTMEvents(req, res, next) {
     });
 };
 
+function getTMEventById(req, res, next) {
+  const { event_id } = req.params;
+  return fetch(`https://app.ticketmaster.com/discovery/v2/events/${event_id}.json?apikey=${API_KEY}`)
+    .then((response) => {
+      const data = response.json();
+      return data.then((result) => {
+        if(result.errors[0].code === 'DIS1004'){
+          return Promise.reject({
+            statusCode: 404,
+            msg: "Event Not Found",
+          });
+        }
+        res.status(200).send(result)
+      })
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   getEvents,
   getEventById,
@@ -86,4 +106,5 @@ module.exports = {
   postEvent,
   deleteEventByID,
   getTMEvents,
+  getTMEventById
 };
