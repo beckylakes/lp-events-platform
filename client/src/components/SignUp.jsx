@@ -81,8 +81,8 @@ const SignUp = () => {
     postUser(username, email, password)
       .then(({ user, msg }) => {
         // New user created
-        console.log(msg, "here");
-        navigate("/");
+        console.log(msg);
+        navigate("/login");
         setSuccess(true);
         setEmail("");
         setUsername("");
@@ -134,7 +134,6 @@ const SignUp = () => {
               id="email"
               ref={userRef}
               autoComplete="off"
-              placeholder="Enter Email"
               required
               onChange={(e) => setEmail(e.target.value)}
               aria-invalid={validEmail ? "false" : "true"}
