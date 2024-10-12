@@ -48,6 +48,7 @@ a, a:visited {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="password"],
 button,
 textarea {
@@ -109,4 +110,8 @@ button {
 
 .line {
     display: inline-block;
+}
+
+#avatar {
+    width: 40px;
 }
