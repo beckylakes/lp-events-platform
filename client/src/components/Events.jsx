@@ -21,21 +21,13 @@ const Events = () => {
   return (
     <>
       <ul>
-        {events.map((event, index) => {
-          if (event._id) {
-            return (
-              <Link to={`/events/${event._id}`}>
-                <EventCard key={event._id} event={event} />{" "}
-              </Link>
-            );
-          }
-          if (event.id) {
-            return (
-              <Link to={`/events/${event.id}`}>
-                <EventCard key={event.id} event={event} />
-              </Link>
-            );
-          }
+        {events.map((event) => {
+          const id = event._id || event.id;
+          return (
+            <Link to={`/events/${id}`} key={id}>
+              <EventCard event={event} />
+            </Link>
+          );
         })}
       </ul>
     </>

@@ -18,6 +18,7 @@ const {
   postEvent,
   deleteEventByID,
   getTMEvents,
+  getTMEventById
 } = require("./controllers/events.controllers.js");
 
 app.use(cors());
@@ -42,14 +43,13 @@ app.patch("/api/events/:event_id", patchEvent);
 app.post("/api/events", postEvent);
 app.delete("/api/events/:event_id", deleteEventByID);
 
-//GET Request to get all events
 app.get("/api/ticketmaster/events", getTMEvents)
-//GET request to get event by id
-app.get("/api/ticketmaster/events/:event_id", getTMEvents)
-//GET request to get pics of certain event by id
-app.get("/api/ticketmaster/events/:event_id/pics", getTMEvents)
-//GET request for search suggestions for splash page
-app.get("/api/ticketmaster/events/suggestions", getTMEvents)
+app.get("/api/ticketmaster/events/:event_id", getTMEventById)
+
+// //GET request to get pics of certain event by id
+// app.get("/api/ticketmaster/events/:event_id/pics", getTMEvents)
+// //GET request for search suggestions for splash page
+// app.get("/api/ticketmaster/events/suggestions", getTMEvents)
 
 
 app.use((err, req, res, next) => {
