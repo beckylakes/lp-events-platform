@@ -8,8 +8,8 @@ const Login = () => {
   const userRef = useRef();
   const errRef = useRef();
 
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -28,8 +28,8 @@ const Login = () => {
     loginUser(email, password)
       .then(({ msg, user }) => {
         if (msg === "Logged in successfully") {
-          console.log(`Logged in successfully as ${user.username}`);
-          setAuth(user)
+          console.log(user, `Logged in successfully as ${user.username}`);
+          setAuth({user})
           setEmail("");
           setPassword("");
           setSuccess(true);
