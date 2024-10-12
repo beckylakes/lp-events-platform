@@ -215,6 +215,50 @@ describe("POST /api/users", () => {
   });
 });
 
+describe("POST /api/users/:user_id/attend", () => {
+  test("should return 400 and error message with invalid event id without adding to attending array", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({event_id: "invalidId1234"})
+      .expect(400)
+      .then((response) => {
+        const { msg, user } = response.body;
+        expect(user.attendingEvents.length).toBe(0)
+        expect(msg).toBe("Bad Request")
+      });
+  });
+
+  test("should return 201 and message with valid event id and update user with new attendance array", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({event_id: validEventId})
+      .expect(201)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're going to this event!");
+        expect(user).toEqual(expect.any(Object));
+        expect(user.username).toBe("newusername");
+        expect(user.email).toBe('qwerty@email.com');
+        expect(user.attendingEvents).toEqual([`${validEventId}`]);
+      });
+  });
+
+  test("should return 200 and message with valid event id without changing attendance array", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({event_id: validEventId})
+      .expect(200)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're already attending this event!");
+        expect(user).toEqual(expect.any(Object));
+        expect(user.username).toBe("newusername");
+        expect(user.email).toBe('qwerty@email.com');
+        expect(user.attendingEvents).toEqual([`${validEventId}`]);
+      });
+  });
+});
+
 describe("DELETE /api/users/:user_id", () => {
   test("should respond with 404 status when given non-existent id", () => {
     return request(app)
@@ -588,7 +632,7 @@ describe("GET /api/ticketmaster/events", () => {
   });
 });
 
-describe.only('GET /api/ticketmaster/events/:event_id', () => {
+describe('GET /api/ticketmaster/events/:event_id', () => {
   test("should return 404 when the id for Ticketmaster event is valid but non existent", () => {
     const invalidTMEventId = "vvG1fZ3MD144Ni"
 

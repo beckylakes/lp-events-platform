@@ -1,3 +1,4 @@
+const { selectEventById } = require("../models/events.models.js");
 const {
   selectAllUsers,
   selectUserById,
@@ -77,6 +78,31 @@ function postLogin(req, res, next) {
     });
 }
 
+function postAttendEvent(req, res, next) {
+  const { user_id } = req.params;
+  const { event_id } = req.body;
+  return selectUserById(user_id)
+    .then((user) => {
+      return selectEventById(event_id, user).then(() => {
+        if (!user.attendingEvents.includes(event_id)) { // Rethink this area as the seledtEventId is not going to work with TM data and for some reason test data isn't working either
+          user.attendingEvents.push(event_id);
+          return user.save().then((updatedUser) => {
+            res
+              .status(201)
+              .send({ msg: "You're going to this event!", user: updatedUser });
+          });
+        } else {
+          res
+            .status(200)
+            .send({ msg: "You're already attending this event!", user });
+        }
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -84,4 +110,5 @@ module.exports = {
   postUser,
   deleteUserByID,
   postLogin,
+  postAttendEvent,
 };

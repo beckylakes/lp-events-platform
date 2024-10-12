@@ -85,7 +85,7 @@ function getTMEventById(req, res, next) {
     .then((response) => {
       const data = response.json();
       return data.then((result) => {
-        if(result.errors[0].code === 'DIS1004'){
+        if(result.errors && result.errors.length > 0 && result.errors[0].code === 'DIS1004'){
           return Promise.reject({
             statusCode: 404,
             msg: "Event Not Found",

@@ -39,11 +39,19 @@ export const loginUser = (email, password) => {
 
 export const getEventById = (id) => {
   return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
-    if(data.errors){
-      return api.get(`events/${id}`).then(({data}) => {
-        return data.event
-      })
+    if (data.errors) {
+      return api.get(`events/${id}`).then(({ data }) => {
+        return data.event;
+      });
     }
+    return data;
+  });
+};
+
+export const attendEvent = (userId, eventId) => {
+  console.log(eventId)
+  return api.post(`users/${userId}/attend`, {userId, eventId}).then((data) => {
+    console.log(data)
     return data;
   });
 };
