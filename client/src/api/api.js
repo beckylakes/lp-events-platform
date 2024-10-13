@@ -21,10 +21,8 @@ export const getAllEvents = () => {
     ([localEvents, tmEvents]) => {
       const filteredLocalEvents = localEvents.filter(event => event.isExternal === false);
 
-      // Combine local events and tmEvents
       const allEvents = [...filteredLocalEvents, ...tmEvents];
 
-      // Use a Set to track event names and filter out duplicates
       const uniqueEvents = [];
       const eventNames = new Set();
 
