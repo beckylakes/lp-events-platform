@@ -10,15 +10,15 @@ const SingleEvent = () => {
   const [attending, setAttending] = useState(false);
   const navigate = useNavigate();
 
-//   const eventId = id || _id
-
   useEffect(() => {
-    getEventById(id)
-      .then((event) => {
-        console.log(event)
-        console.log(`Successfully got ${event.name} event`, event);
-        setEvent(event);
-      })
+    getEventById(id).then((event) => {
+      console.log(event);
+      console.log(`Successfully got ${event.name} event`, event);
+      setEvent(event);
+      if (event.attendees.includes(auth.user._id)) {
+        setAttending(true);
+      }
+    });
   }, [id]);
 
   const handleAttend = () => {
@@ -28,7 +28,7 @@ const SingleEvent = () => {
       return;
     }
 
-    const eventId = event.id || event._id
+    const eventId = event.id || event._id;
     const userId = auth.user._id;
 
     attendEvent(userId, eventId)

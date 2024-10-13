@@ -8,7 +8,6 @@ function selectAllEvents() {
 }
 
 function selectEventById(event_id, user) {
-  console.log(event_id)
   if (!mongoose.Types.ObjectId.isValid(event_id)) {
     return Promise.reject({
       statusCode: 400,

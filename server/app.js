@@ -10,7 +10,8 @@ const {
   postUser,
   deleteUserByID,
   postLogin,
-  postAttendEvent
+  postAttendEvent,
+  postAttentTMEvent
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -38,6 +39,7 @@ app.post("/api/users", postUser);
 app.delete("/api/users/:user_id", deleteUserByID);
 app.post("/api/users/login", postLogin)
 app.post("/api/users/:user_id/attend", postAttendEvent)
+app.post("/api/users/:user_id/ticketmaster/attend", postAttentTMEvent)
 
 app.get("/api/events", getEvents);
 app.get("/api/events/:event_id", getEventById);

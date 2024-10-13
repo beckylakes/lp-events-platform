@@ -1,4 +1,5 @@
-const { selectEventById } = require("../models/events.models.js");
+require("dotenv").config();
+const { selectEventById, insertEvent } = require("../models/events.models.js");
 const {
   selectAllUsers,
   selectUserById,
@@ -7,6 +8,8 @@ const {
   deleteUser,
   findUser,
 } = require("../models/users.models.js");
+
+const API_KEY = process.env.API_KEY;
 
 function getUsers(req, res, next) {
   return selectAllUsers()
@@ -83,23 +86,94 @@ function postAttendEvent(req, res, next) {
   const { eventId } = req.body;
   return selectUserById(user_id)
     .then((user) => {
-      return selectEventById(eventId).then(() => {
-        if (!user.attendingEvents.includes(eventId)) {
-          user.attendingEvents.push(eventId);
-          return user.save().then((updatedUser) => {
+      return selectEventById(eventId)
+        .then((event) => {
+          if (!event.attendees.includes(user_id)) {
+            event.attendees.push(user_id);
+            return event.save();
+          }
+        })
+        .then(() => {
+          if (!user.attendingEvents.includes(eventId)) {
+            user.attendingEvents.push(eventId);
+            return user.save().then((updatedUser) => {
+              res.status(201).send({
+                msg: "You're going to this event!",
+                user: updatedUser,
+              });
+            });
+          } else {
             res
-              .status(201)
-              .send({ msg: "You're going to this event!", user: updatedUser });
-          });
-        } else {
-          res
-            .status(200)
-            .send({ msg: "You're already attending this event!", user });
-        }
-      });
+              .status(200)
+              .send({ msg: "You're already attending this event!", user });
+          }
+        });
     })
     .catch((err) => {
-      console.log(err)
+      next(err);
+    });
+}
+
+function postAttentTMEvent(req, res, next) {
+  const { user_id } = req.params;
+  const { eventId } = req.body;
+
+  return selectUserById(user_id)
+    .then((user) => {
+      return fetch(
+        `https://app.ticketmaster.com/discovery/v2/events/${eventId}.json?apikey=${API_KEY}`
+      )
+        .then((response) => response.json())
+        .then((event) => {
+          const newEvent = {
+            name: event.name,
+            info: event.info || "No info available",
+            location: event._embedded?.venues[0]?.name || "Unknown",
+            date: event.dates.start.localDate || null,
+            startTime: event.dates.start.localTime || null,
+            endTime: event.dates.end?.localTime || null,
+            createdBy: null,
+            price: event.priceRanges?.[0]?.min || 0,
+            attendees: [],
+            isPaid: event.priceRanges?.[0]?.min > 0 || false,
+            tags: event.classifications?.map((classification) => classification.segment.name) || [],
+            images: event.images?.map((img) => img.url) || [],
+            isExternal: true,
+            ticketmasterId: eventId,
+            url: event.url,
+          };
+
+          return insertEvent(newEvent);
+        })
+        .then((newEvent) => {
+          return selectEventById(newEvent._id)})
+          .then((tmEvent) => {
+            if (!tmEvent.attendees.includes(user_id)) {
+              tmEvent.attendees.push(user_id);
+              return tmEvent.save();
+            }
+            return tmEvent
+          })
+        .then((tmEvent) => {
+          console.log(tmEvent)
+          if (!user.attendingEvents.includes(tmEvent._id)) {
+            user.attendingEvents.push(tmEvent._id);
+            return user.save().then((updatedUser) => {
+              res.status(201).send({
+                msg: "You're going to this event!",
+                user: updatedUser,
+              });
+            });
+          } else {
+            res.status(200).send({
+              msg: "You're already attending this event!",
+              user,
+            });
+          }
+        });
+    })
+    .catch((err) => {
+      console.log(err);
       next(err);
     });
 }
@@ -112,4 +186,5 @@ module.exports = {
   deleteUserByID,
   postLogin,
   postAttendEvent,
+  postAttentTMEvent,
 };

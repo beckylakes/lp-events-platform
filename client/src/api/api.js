@@ -48,9 +48,9 @@ export const getEventById = (id) => {
 };
 
 export const attendEvent = (userId, eventId) => {
-  console.log(userId, eventId)
-  return api.post(`users/${userId}/attend`, {userId, eventId}).then((data) => {
-    console.log(data)
+  return api.post(`users/${userId}/attend`, {eventId}).then((data) => {
     return data;
-  });
+  }).catch(() => {
+    return api.post(`users/${userId}/ticketmaster/attend`, {eventId}).then((data) => {console.log(data)})
+  })
 };
