@@ -80,12 +80,12 @@ function postLogin(req, res, next) {
 
 function postAttendEvent(req, res, next) {
   const { user_id } = req.params;
-  const { event_id } = req.body;
+  const { eventId } = req.body;
   return selectUserById(user_id)
     .then((user) => {
-      return selectEventById(event_id, user).then(() => {
-        if (!user.attendingEvents.includes(event_id)) { // Rethink this area as the seledtEventId is not going to work with TM data and for some reason test data isn't working either
-          user.attendingEvents.push(event_id);
+      return selectEventById(eventId).then(() => {
+        if (!user.attendingEvents.includes(eventId)) {
+          user.attendingEvents.push(eventId);
           return user.save().then((updatedUser) => {
             res
               .status(201)
@@ -99,6 +99,7 @@ function postAttendEvent(req, res, next) {
       });
     })
     .catch((err) => {
+      console.log(err)
       next(err);
     });
 }

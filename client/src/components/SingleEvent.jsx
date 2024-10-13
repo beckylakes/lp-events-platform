@@ -10,24 +10,26 @@ const SingleEvent = () => {
   const [attending, setAttending] = useState(false);
   const navigate = useNavigate();
 
+//   const eventId = id || _id
+
   useEffect(() => {
     getEventById(id)
       .then((event) => {
+        console.log(event)
         console.log(`Successfully got ${event.name} event`, event);
         setEvent(event);
       })
-      .catch((err) => console.log(err));
   }, [id]);
 
   const handleAttend = () => {
     if (!auth?.user) {
-      alert("You need to be logged in to attend an event!");
+      alert("Please login in to attend an event");
       navigate("/login");
       return;
     }
 
-    const eventId = event.id || event._id || event.tm_event_id;
-    const userId = auth.user.id || auth.user._id;
+    const eventId = event.id || event._id
+    const userId = auth.user._id;
 
     attendEvent(userId, eventId)
       .then((res) => {
