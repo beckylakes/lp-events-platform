@@ -19,7 +19,23 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
-      return [...localEvents, ...tmEvents];
+      const filteredLocalEvents = localEvents.filter(event => event.isExternal === false);
+
+      // Combine local events and tmEvents
+      const allEvents = [...filteredLocalEvents, ...tmEvents];
+
+      // Use a Set to track event names and filter out duplicates
+      const uniqueEvents = [];
+      const eventNames = new Set();
+
+      allEvents.forEach(event => {
+        if (!eventNames.has(event.name)) {
+          eventNames.add(event.name);
+          uniqueEvents.push(event);
+        }
+      });
+
+      return uniqueEvents;
     }
   );
 };
