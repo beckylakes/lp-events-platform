@@ -19,14 +19,15 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
-      const filteredLocalEvents = localEvents.filter(event => event.isExternal === false);
-
+      const filteredLocalEvents = localEvents.filter(
+        (event) => event.isExternal === false
+      );
       const allEvents = [...filteredLocalEvents, ...tmEvents];
 
       const uniqueEvents = [];
       const eventNames = new Set();
 
-      allEvents.forEach(event => {
+      allEvents.forEach((event) => {
         if (!eventNames.has(event.name)) {
           eventNames.add(event.name);
           uniqueEvents.push(event);
@@ -52,19 +53,37 @@ export const loginUser = (email, password) => {
 };
 
 export const getEventById = (id) => {
-  return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
-    return data;
-  }).catch(() => {
-    return api.get(`events/${id}`).then(({ data }) => {
-      return data.event;
-    });
-  } )
+  if(id.length < 24) {
+    return api.get(`ticketmaster/events/${id}`)
+    .then(({ data }) => {
+      console.log(data);
+      return data;
+    })
+  }
+  
+
+      return api.get(`events/${id}`).then(({ data }) => {
+        return data.event;
+      });
+    
 };
 
 export const attendEvent = (userId, eventId) => {
-  return api.post(`users/${userId}/attend`, {eventId}).then((data) => {
-    return data;
-  }).catch(() => {
-    return api.post(`users/${userId}/ticketmaster/attend`, {eventId}).then((data) => {console.log(data)})
-  })
+  if (eventId.length < 24) {
+    return api
+      .post(`users/${userId}/ticketmaster/attend`, { eventId })
+      .then((data) => {
+        return data;
+      })
+      .catch((err) => console.log("TM event error", err));
+  }
+
+  return api
+    .post(`users/${userId}/attend`, { eventId })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };

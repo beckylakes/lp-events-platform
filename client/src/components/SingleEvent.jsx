@@ -12,14 +12,16 @@ const SingleEvent = () => {
 
   useEffect(() => {
     getEventById(id).then((event) => {
-      console.log(event);
       console.log(`Successfully got ${event.name} event`, event);
       setEvent(event);
-      if (event.attendees.includes(auth.user._id)) {
+
+      if (event?.attendees?.includes(auth.user._id)) {
         setAttending(true);
+      } else {
+        setAttending(false);
       }
     });
-  }, [id]);
+  }, [id, auth.user._id]);
 
   const handleAttend = () => {
     if (!auth?.user) {
@@ -28,7 +30,7 @@ const SingleEvent = () => {
       return;
     }
 
-    const eventId = event.id || event._id;
+    const eventId = event._id;
     const userId = auth.user._id;
 
     attendEvent(userId, eventId)
@@ -43,7 +45,7 @@ const SingleEvent = () => {
     <div>
       <h1>{event.name}</h1>
       <p>{event.info}</p>
-      <button button disabled={attending} onClick={handleAttend}>
+      <button disabled={attending} onClick={handleAttend}>
         {attending ? "You are attending this event" : "Attend this event"}
       </button>
     </div>

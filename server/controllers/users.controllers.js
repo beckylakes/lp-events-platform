@@ -1,5 +1,8 @@
 require("dotenv").config();
-const { selectEventById, insertEvent } = require("../models/events.models.js");
+const {
+  selectEventById,
+  insertEvent,
+} = require("../models/events.models.js");
 const {
   selectAllUsers,
   selectUserById,
@@ -114,16 +117,25 @@ function postAttendEvent(req, res, next) {
     });
 }
 
-function postAttentTMEvent(req, res, next) {
+function postAttendTMEvent(req, res, next) {
   const { user_id } = req.params;
   const { eventId } = req.body;
 
+  let user;
+
+  // Will need to check logic below here, as we dont need to create an event here anymore - by the time this func is invoked, the event already exists in MongoDB.
+
   return selectUserById(user_id)
-    .then((user) => {
+    .then((foundUser) => {
+      user = foundUser;
+// FindOne using evenId on ticketmasterId object {ticketmasterId : eventId}
+// from what's returned we want to return selectEventById(returnedevent._id);
       return fetch(
         `https://app.ticketmaster.com/discovery/v2/events/${eventId}.json?apikey=${API_KEY}`
       )
-        .then((response) => response.json())
+        .then((response) => {
+          return response.json();
+        })
         .then((event) => {
           const newEvent = {
             name: event.name,
@@ -136,44 +148,48 @@ function postAttentTMEvent(req, res, next) {
             price: event.priceRanges?.[0]?.min || 0,
             attendees: [],
             isPaid: event.priceRanges?.[0]?.min > 0 || false,
-            tags: event.classifications?.map((classification) => classification.segment.name) || [],
+            tags:
+              event.classifications?.map(
+                (classification) => classification.segment.name
+              ) || [],
             images: event.images?.map((img) => img.url) || [],
             isExternal: true,
             ticketmasterId: eventId,
             url: event.url,
           };
 
-          return insertEvent(newEvent);
-        })
-        .then((newEvent) => {
-          return selectEventById(newEvent._id)})
-          .then((tmEvent) => {
-            if (!tmEvent.attendees.includes(user_id)) {
-              tmEvent.attendees.push(user_id);
-              return tmEvent.save();
-            }
-            return tmEvent
-          })
-        .then((tmEvent) => {
-          console.log(tmEvent)
-          if (!user.attendingEvents.includes(tmEvent._id)) {
-            user.attendingEvents.push(tmEvent._id);
-            return user.save().then((updatedUser) => {
-              res.status(201).send({
-                msg: "You're going to this event!",
-                user: updatedUser,
-              });
-            });
-          } else {
-            res.status(200).send({
-              msg: "You're already attending this event!",
-              user,
-            });
-          }
+          return insertEvent(newEvent).then((createdEvent) => {
+            return selectEventById(createdEvent._id);
+          });
         });
     })
+    //Up to here should be changed I think!!
+    .then((uniqueEvent) => {
+      if (!uniqueEvent.attendees.includes(user._id)) {
+        uniqueEvent.attendees.push(user._id);
+        return uniqueEvent.save().then(() => uniqueEvent);
+      }
+      return uniqueEvent;
+    })
+    .then((uniqueEvent) => {
+      if (!user.attendingEvents.includes(uniqueEvent._id)) {
+        console.log("should be here 2");
+        user.attendingEvents.push(uniqueEvent._id);
+
+        return user.save().then((updatedUser) => {
+          res.status(201).send({
+            msg: "You're going to this event!",
+            user: updatedUser,
+          });
+        });
+      } else {
+        res
+          .status(200)
+          .send({ msg: "You're already attending this event!", user });
+      }
+    })
     .catch((err) => {
-      console.log(err);
+      console.error("An error occurred:", err);
       next(err);
     });
 }
@@ -186,5 +202,5 @@ module.exports = {
   deleteUserByID,
   postLogin,
   postAttendEvent,
-  postAttentTMEvent,
+  postAttendTMEvent,
 };
