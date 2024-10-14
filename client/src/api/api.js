@@ -19,7 +19,23 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
-      return [...localEvents, ...tmEvents];
+// This is design choice => do I want to display all ticketmaster events, even if the data is slightly odd?
+      const filteredLocalEvents = localEvents.filter(
+        (event) => event.isExternal === false
+      );
+      const allEvents = [...filteredLocalEvents, ...tmEvents];
+
+      const uniqueEvents = [];
+      const eventNames = new Set();
+
+      allEvents.forEach((event) => {
+        if (!eventNames.has(event.name)) {
+          eventNames.add(event.name);
+          uniqueEvents.push(event);
+        }
+      });
+
+      return uniqueEvents;
     }
   );
 };
@@ -38,12 +54,33 @@ export const loginUser = (email, password) => {
 };
 
 export const getEventById = (id) => {
-  return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
-    if(data.errors){
-      return api.get(`events/${id}`).then(({data}) => {
-        return data.event
-      })
-    }
-    return data;
+  if (id.length < 24) {
+    return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
+      return data;
+    });
+  }
+
+  return api.get(`events/${id}`).then(({ data }) => {
+    return data.event;
   });
+};
+
+export const attendEvent = (userId, eventId) => {
+  if (eventId.length < 24) {
+    return api
+      .post(`users/${userId}/ticketmaster/attend`, { eventId })
+      .then((data) => {
+        return data;
+      })
+      .catch((err) => console.log("TM event error", err));
+  }
+
+  return api
+    .post(`users/${userId}/attend`, { eventId })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };

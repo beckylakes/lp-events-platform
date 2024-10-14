@@ -10,6 +10,8 @@ const {
   postUser,
   deleteUserByID,
   postLogin,
+  postAttendEvent,
+  postAttendTMEvent
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -34,17 +36,19 @@ app.get("/api/users", getUsers);
 app.get("/api/users/:user_id", getUserById);
 app.patch("/api/users/:user_id", patchUser);
 app.post("/api/users", postUser);
-app.delete("/api/users/:user_id", deleteUserByID);
 app.post("/api/users/login", postLogin)
+app.post("/api/users/:user_id/attend", postAttendEvent)
+app.post("/api/users/:user_id/ticketmaster/attend", postAttendTMEvent)
+app.delete("/api/users/:user_id", deleteUserByID);
 
 app.get("/api/events", getEvents);
+app.get("/api/ticketmaster/events", getTMEvents)
 app.get("/api/events/:event_id", getEventById);
+app.get("/api/ticketmaster/events/:event_id", getTMEventById)
 app.patch("/api/events/:event_id", patchEvent);
 app.post("/api/events", postEvent);
 app.delete("/api/events/:event_id", deleteEventByID);
 
-app.get("/api/ticketmaster/events", getTMEvents)
-app.get("/api/ticketmaster/events/:event_id", getTMEventById)
 
 // //GET request to get pics of certain event by id
 // app.get("/api/ticketmaster/events/:event_id/pics", getTMEvents)

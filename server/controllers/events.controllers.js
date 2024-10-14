@@ -5,6 +5,8 @@ const {
   updateEvent,
   insertEvent,
   deleteEvent,
+  selectTMEventById,
+  findTMEventById,
 } = require("../models/events.models.js");
 
 const API_KEY = process.env.API_KEY;
@@ -77,22 +79,29 @@ function getTMEvents(req, res, next) {
     .catch((err) => {
       next(err);
     });
-};
+}
 
 function getTMEventById(req, res, next) {
   const { event_id } = req.params;
-  return fetch(`https://app.ticketmaster.com/discovery/v2/events/${event_id}.json?apikey=${API_KEY}`)
-    .then((response) => {
-      const data = response.json();
-      return data.then((result) => {
-        if(result.errors[0].code === 'DIS1004'){
-          return Promise.reject({
-            statusCode: 404,
-            msg: "Event Not Found",
-          });
-        }
-        res.status(200).send(result)
-      })
+
+  return fetch(
+    `https://app.ticketmaster.com/discovery/v2/events/${event_id}.json?apikey=${API_KEY}`
+  )
+    .then((response) => response.json())
+    .then((ticketmasterEvent) => {
+      if (
+        ticketmasterEvent.errors &&
+        ticketmasterEvent.errors.length > 0 &&
+        ticketmasterEvent.errors[0].code === "DIS1004"
+      ) {
+        return res.status(404).send({ msg: "Event Not Found" });
+      }
+      return findTMEventById(
+        { ticketmasterId: event_id },
+        ticketmasterEvent
+      ).then((event) => {
+        res.status(200).send(event);
+      });
     })
     .catch((err) => {
       next(err);
@@ -106,5 +115,5 @@ module.exports = {
   postEvent,
   deleteEventByID,
   getTMEvents,
-  getTMEventById
+  getTMEventById,
 };

@@ -1,3 +1,8 @@
+require("dotenv").config();
+const {
+  selectEventById,
+  findTMEventById,
+} = require("../models/events.models.js");
 const {
   selectAllUsers,
   selectUserById,
@@ -6,6 +11,8 @@ const {
   deleteUser,
   findUser,
 } = require("../models/users.models.js");
+
+const API_KEY = process.env.API_KEY;
 
 function getUsers(req, res, next) {
   return selectAllUsers()
@@ -77,6 +84,83 @@ function postLogin(req, res, next) {
     });
 }
 
+function postAttendEvent(req, res, next) {
+  const { user_id } = req.params;
+  const { eventId } = req.body;
+  return selectUserById(user_id)
+    .then((user) => {
+      return selectEventById(eventId)
+        .then((event) => {
+          if (!event.attendees.includes(user_id)) {
+            event.attendees.push(user_id);
+            return event.save();
+          }
+        })
+        .then(() => {
+          if (!user.attendingEvents.includes(eventId)) {
+            user.attendingEvents.push(eventId);
+            return user.save().then((updatedUser) => {
+              res.status(201).send({
+                msg: "You're going to this event!",
+                user: updatedUser,
+              });
+            });
+          } else {
+            res
+              .status(400)
+              .send({ msg: "You're already attending this event!", user });
+          }
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+function postAttendTMEvent(req, res, next) {
+  const { user_id } = req.params;
+  const { eventId } = req.body;
+
+  let user;
+
+  return selectUserById(user_id)
+    .then((foundUser) => {
+      user = foundUser;
+    })
+    .then(() => {
+      return fetch(`https://app.ticketmaster.com/discovery/v2/events/${eventId}.json?apikey=${API_KEY}`)
+    })
+    .then((response) => response.json())
+    .then((tmEvent) => {
+      return findTMEventById({ ticketmasterId: eventId }, tmEvent);
+    })
+    .then((event) => {
+      if (!event.attendees.includes(user._id)) {
+        event.attendees.push(user._id);
+        return event.save().then(() => event);
+      }
+      return event;
+    })
+    .then((event) => {
+      if (!user.attendingEvents.includes(event._id)) {
+        user.attendingEvents.push(event._id);
+        return user.save().then((updatedUser) => {
+          res.status(201).send({
+            msg: "You're going to this event!",
+            user: updatedUser,
+          });
+        });
+      } else {
+        res
+          .status(400)
+          .send({ msg: "You're already attending this event!", user });
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -84,4 +168,6 @@ module.exports = {
   postUser,
   deleteUserByID,
   postLogin,
+  postAttendEvent,
+  postAttendTMEvent,
 };
