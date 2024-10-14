@@ -1,6 +1,6 @@
 # Events Platform
 
-**To be finished by Oct 30th 2024**
+**To be finished by Oct 28th 2024 at 5pm**
 
 # Product context:
 A webapp platform where users can create/share events with members of the community. A user can add the event they sign up for to their calendar. Some events are free, others have set attendance price or a pay-as-you-feel charge.
