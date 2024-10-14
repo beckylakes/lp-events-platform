@@ -19,6 +19,7 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
+// This is design choice => do I want to display all ticketmaster events, even if the data is slightly odd?
       const filteredLocalEvents = localEvents.filter(
         (event) => event.isExternal === false
       );
@@ -53,19 +54,15 @@ export const loginUser = (email, password) => {
 };
 
 export const getEventById = (id) => {
-  if(id.length < 24) {
-    return api.get(`ticketmaster/events/${id}`)
-    .then(({ data }) => {
-      console.log(data);
+  if (id.length < 24) {
+    return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
       return data;
-    })
+    });
   }
-  
 
-      return api.get(`events/${id}`).then(({ data }) => {
-        return data.event;
-      });
-    
+  return api.get(`events/${id}`).then(({ data }) => {
+    return data.event;
+  });
 };
 
 export const attendEvent = (userId, eventId) => {

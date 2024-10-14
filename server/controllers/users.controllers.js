@@ -2,6 +2,7 @@ require("dotenv").config();
 const {
   selectEventById,
   insertEvent,
+  findTMEventById,
 } = require("../models/events.models.js");
 const {
   selectAllUsers,
@@ -123,59 +124,24 @@ function postAttendTMEvent(req, res, next) {
 
   let user;
 
-  // Will need to check logic below here, as we dont need to create an event here anymore - by the time this func is invoked, the event already exists in MongoDB.
-
   return selectUserById(user_id)
     .then((foundUser) => {
       user = foundUser;
-// FindOne using evenId on ticketmasterId object {ticketmasterId : eventId}
-// from what's returned we want to return selectEventById(returnedevent._id);
-      return fetch(
-        `https://app.ticketmaster.com/discovery/v2/events/${eventId}.json?apikey=${API_KEY}`
-      )
-        .then((response) => {
-          return response.json();
-        })
-        .then((event) => {
-          const newEvent = {
-            name: event.name,
-            info: event.info || "No info available",
-            location: event._embedded?.venues[0]?.name || "Unknown",
-            date: event.dates.start.localDate || null,
-            startTime: event.dates.start.localTime || null,
-            endTime: event.dates.end?.localTime || null,
-            createdBy: null,
-            price: event.priceRanges?.[0]?.min || 0,
-            attendees: [],
-            isPaid: event.priceRanges?.[0]?.min > 0 || false,
-            tags:
-              event.classifications?.map(
-                (classification) => classification.segment.name
-              ) || [],
-            images: event.images?.map((img) => img.url) || [],
-            isExternal: true,
-            ticketmasterId: eventId,
-            url: event.url,
-          };
-
-          return insertEvent(newEvent).then((createdEvent) => {
-            return selectEventById(createdEvent._id);
-          });
-        });
     })
-    //Up to here should be changed I think!!
-    .then((uniqueEvent) => {
-      if (!uniqueEvent.attendees.includes(user._id)) {
-        uniqueEvent.attendees.push(user._id);
-        return uniqueEvent.save().then(() => uniqueEvent);
+    .then(() => {
+      return findTMEventById({ ticketmasterId: eventId });
+    })
+    .then((event) => {
+      if (!event.attendees.includes(user._id)) {
+        event.attendees.push(user._id);
+        return event.save().then(() => event);
       }
-      return uniqueEvent;
+      return event;
     })
-    .then((uniqueEvent) => {
-      if (!user.attendingEvents.includes(uniqueEvent._id)) {
+    .then((event) => {
+      if (!user.attendingEvents.includes(event._id)) {
         console.log("should be here 2");
-        user.attendingEvents.push(uniqueEvent._id);
-
+        user.attendingEvents.push(event._id);
         return user.save().then((updatedUser) => {
           res.status(201).send({
             msg: "You're going to this event!",
