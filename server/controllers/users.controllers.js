@@ -1,7 +1,6 @@
 require("dotenv").config();
 const {
   selectEventById,
-  insertEvent,
   findTMEventById,
 } = require("../models/events.models.js");
 const {
@@ -108,7 +107,7 @@ function postAttendEvent(req, res, next) {
             });
           } else {
             res
-              .status(200)
+              .status(400)
               .send({ msg: "You're already attending this event!", user });
           }
         });
@@ -129,7 +128,11 @@ function postAttendTMEvent(req, res, next) {
       user = foundUser;
     })
     .then(() => {
-      return findTMEventById({ ticketmasterId: eventId });
+      return fetch(`https://app.ticketmaster.com/discovery/v2/events/${eventId}.json?apikey=${API_KEY}`)
+    })
+    .then((response) => response.json())
+    .then((tmEvent) => {
+      return findTMEventById({ ticketmasterId: eventId }, tmEvent);
     })
     .then((event) => {
       if (!event.attendees.includes(user._id)) {
@@ -140,7 +143,6 @@ function postAttendTMEvent(req, res, next) {
     })
     .then((event) => {
       if (!user.attendingEvents.includes(event._id)) {
-        console.log("should be here 2");
         user.attendingEvents.push(event._id);
         return user.save().then((updatedUser) => {
           res.status(201).send({
@@ -150,12 +152,11 @@ function postAttendTMEvent(req, res, next) {
         });
       } else {
         res
-          .status(200)
+          .status(400)
           .send({ msg: "You're already attending this event!", user });
       }
     })
     .catch((err) => {
-      console.error("An error occurred:", err);
       next(err);
     });
 }

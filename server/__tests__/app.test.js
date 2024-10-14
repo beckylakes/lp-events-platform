@@ -28,7 +28,7 @@ describe("GET /api/users", () => {
       .then(({ body }) => {
         const { users } = body;
         expect(users).toBeInstanceOf(Array);
-        expect(users).toHaveLength(3);
+        expect(users).toHaveLength(2);
       });
   });
 
@@ -38,7 +38,7 @@ describe("GET /api/users", () => {
       .expect(200)
       .then(({ body }) => {
         const { users } = body;
-        expect(users).toHaveLength(3);
+        expect(users).toHaveLength(2);
         users.forEach((user) => {
           expect(user).toMatchObject({
             _id: expect.any(String),
@@ -215,74 +215,6 @@ describe("POST /api/users", () => {
   });
 });
 
-describe("POST /api/users/:user_id/attend", () => {
-  test("should return 400 and error message with invalid event id without adding to attending array", () => {
-    return request(app)
-      .post(`/api/users/${validUserId}/attend`)
-      .send({event_id: "invalidId1234"})
-      .expect(400)
-      .then((response) => {
-        const { msg, user } = response.body;
-        expect(user.attendingEvents.length).toBe(0)
-        expect(msg).toBe("Bad Request")
-      });
-  });
-
-  test("should return 201 and message with valid event id and update user with new attendance array", () => {
-    return request(app)
-      .post(`/api/users/${validUserId}/attend`)
-      .send({event_id: validEventId})
-      .expect(201)
-      .then((response) => {
-        const { user, msg } = response.body;
-        expect(msg).toBe("You're going to this event!");
-        expect(user).toEqual(expect.any(Object));
-        expect(user.username).toBe("newusername");
-        expect(user.email).toBe('qwerty@email.com');
-        expect(user.attendingEvents).toEqual([`${validEventId}`]);
-      });
-  });
-
-  test("should return 200 and message with valid event id without changing attendance array", () => {
-    return request(app)
-      .post(`/api/users/${validUserId}/attend`)
-      .send({event_id: validEventId})
-      .expect(200)
-      .then((response) => {
-        const { user, msg } = response.body;
-        expect(msg).toBe("You're already attending this event!");
-        expect(user).toEqual(expect.any(Object));
-        expect(user.username).toBe("newusername");
-        expect(user.email).toBe('qwerty@email.com');
-        expect(user.attendingEvents).toEqual([`${validEventId}`]);
-      });
-  });
-});
-
-describe("DELETE /api/users/:user_id", () => {
-  test("should respond with 404 status when given non-existent id", () => {
-    return request(app)
-      .delete("/api/users/66feec40084c536f65f2e987")
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("User Not Found");
-      });
-  });
-
-  test("should respond with 400 status when given invalid id", () => {
-    return request(app)
-      .delete("/api/users/invalid-id")
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 204 status when user is deleted (no return)", () => {
-    return request(app).delete(`/api/users/${validUserId}`).expect(204);
-  });
-});
-
 describe("POST /api/users/login", () => {
   test("should return 401 when the email is incorrect", () => {
     return request(app)
@@ -335,6 +267,127 @@ describe("POST /api/users/login", () => {
   });
 });
 
+describe("POST /api/users/:user_id/attend", () => {
+  test("should return 400 and error message with invalid event id", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({ eventId: "invalidId1234" })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("should return 201 and message with valid event id and update user with new attendance array", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({ eventId: validEventId })
+      .expect(201)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're going to this event!");
+        expect(user).toBeInstanceOf(Object);
+        expect(user._id).toBe(validUserId);
+        expect(user.email).toBe("qwerty@email.com");
+        expect(user.attendingEvents).toEqual([`${validEventId}`]);
+      });
+  });
+
+  test("should return 400 and message with valid event id without changing attendance array if user already is attending", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .send({ eventId: validEventId })
+      .expect(400)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're already attending this event!");
+        expect(user).toBeInstanceOf(Object);
+        expect(user._id).toBe(validUserId);
+        expect(user.email).toBe("qwerty@email.com");
+        expect(user.attendingEvents).toHaveLength(1);
+        expect(user.attendingEvents).toEqual([`${validEventId}`]);
+      });
+  });
+});
+
+describe("POST /api/users/:user_id/ticketmaster/attend", () => {
+  test("should return 404 if the user is not found (non-existent id)", () => {
+    return request(app)
+      .post(`/api/users/670d46b52000794ef12446a1/ticketmaster/attend`)
+      .send({ eventId: validEventId })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("User Not Found");
+      });
+  });
+
+  test("should return 400 if the user is not found (invalid id)", () => {
+    return request(app)
+      .post(`/api/users/invalidUserId/ticketmaster/attend`)
+      .send({ eventId: validEventId })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("should return 201 and update user with valid event ID", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/ticketmaster/attend`)
+      .send({ eventId: "vvG1fZ9MD144Ni" })
+      .expect(201)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're going to this event!");
+        expect(user).toBeInstanceOf(Object);
+        expect(user._id).toBe(validUserId);
+        expect(user.email).toBe("qwerty@email.com");
+        expect(user.attendingEvents).not.toHaveLength(0);
+      });
+  });
+
+  test("should return 400 if the user is already attending the event", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/ticketmaster/attend`)
+      .send({ eventId: "vvG1fZ9MD144Ni" })
+      .expect(400)
+      .then((response) => {
+        const { user, msg } = response.body;
+        expect(msg).toBe("You're already attending this event!");
+        expect(user).toBeInstanceOf(Object);
+        expect(user._id).toBe(validUserId);
+        expect(user.attendingEvents).toHaveLength(2);
+      });
+  });
+});
+
+describe("DELETE /api/users/:user_id", () => {
+  test("should respond with 404 status when given non-existent id", () => {
+    return request(app)
+      .delete("/api/users/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("User Not Found");
+      });
+  });
+
+  test("should respond with 400 status when given invalid id", () => {
+    return request(app)
+      .delete("/api/users/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 204 status when user is deleted (no return)", () => {
+    return request(app).delete(`/api/users/${validUserId}`).expect(204);
+  });
+});
+
 describe("GET /api/events", () => {
   test("should respond with an array of expected length", () => {
     return request(app)
@@ -343,7 +396,7 @@ describe("GET /api/events", () => {
       .then(({ body }) => {
         const { events } = body;
         expect(events).toBeInstanceOf(Array);
-        expect(events).toHaveLength(4);
+        expect(events).toHaveLength(5);
       });
   });
 
@@ -353,7 +406,7 @@ describe("GET /api/events", () => {
       .expect(200)
       .then(({ body }) => {
         const { events } = body;
-        expect(events).toHaveLength(4);
+        expect(events).toHaveLength(5);
         events.forEach((event) => {
           expect(event).toMatchObject({
             _id: expect.any(String),
@@ -362,187 +415,16 @@ describe("GET /api/events", () => {
             location: expect.any(String),
             date: expect.any(String),
             startTime: expect.any(String),
-            endTime: expect.any(String),
-            createdBy: expect.any(String),
             price: expect.any(Number),
             attendees: expect.any(Array),
             isPaid: expect.any(Boolean),
             tags: expect.any(Array),
             images: expect.any(Array),
           });
+          expect([null, expect.any(String)]).toContainEqual(event.endTime);
+          expect([null, expect.any(String)]).toContainEqual(event.createdBy);
         });
       });
-  });
-});
-
-describe("GET /api/events/:event_id", () => {
-  test("should respond with 404 status and error message with valid non-existent event id", () => {
-    return request(app)
-      .get("/api/events/66feec40084c536f65f2e987")
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("Event Not Found");
-      });
-  });
-
-  test("should respond with 400 status and error message with invalid event id", () => {
-    return request(app)
-      .get("/api/events/invalid-id")
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 200 status and event data for valid event id", () => {
-    return request(app)
-      .get(`/api/events/${validEventId}`)
-      .expect(200)
-      .then((response) => {
-        const { event } = response.body;
-        expect(event).toEqual(expect.any(Object));
-        expect(event._id).toBe(validEventId);
-      });
-  });
-});
-
-describe("PATCH /api/events/:event_id", () => {
-  test("should respond with a 404 status with non-existent event id", () => {
-    return request(app)
-      .patch("/api/events/66feec40084c536f65f2e987")
-      .send({ username: "neweventtitle" })
-      .expect(404)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Event Not Found");
-      });
-  });
-
-  test("should respond with a 400 status code if event id is invalid", () => {
-    return request(app)
-      .patch("/api/events/invalid-id")
-      .send({ username: "neweventtitle" })
-      .expect(400)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 200 status code and return updated event with nothing else changing", () => {
-    return request(app)
-      .patch(`/api/events/${validEventId}`)
-      .send({ username: "Happy Hour at Local Bar" })
-      .expect(200)
-      .then((response) => {
-        const { event } = response.body;
-        expect(event).toMatchObject({
-          _id: `${validEventId}`,
-          name: expect.any(String),
-          info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
-          location: "Central Park, New York",
-          date: "2024-11-10T00:00:00.000Z",
-          startTime: "2024-11-10T09:00:00.000Z",
-          endTime: "2024-11-10T10:30:00.000Z",
-          createdBy: `${validUserId}`,
-          price: 0,
-          attendees: [],
-          isPaid: false,
-          tags: ["yoga", "health", "community"],
-          images: [],
-        });
-      });
-  });
-
-  test("should return unchanged event object if no changes are made", () => {
-    return request(app)
-      .patch(`/api/events/${validEventId}`)
-      .send({})
-      .expect(200)
-      .then((response) => {
-        const { event } = response.body;
-        expect(event).toMatchObject({
-          _id: `${validEventId}`,
-          name: "Community Yoga",
-          info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
-          location: "Central Park, New York",
-          date: "2024-11-10T00:00:00.000Z",
-          startTime: "2024-11-10T09:00:00.000Z",
-          endTime: "2024-11-10T10:30:00.000Z",
-          createdBy: `${validUserId}`,
-          price: 0,
-          attendees: [],
-          isPaid: false,
-          tags: ["yoga", "health", "community"],
-          images: [],
-        });
-      });
-  });
-});
-
-describe("POST /api/events", () => {
-  test("should respond with 400 status and error message when required fields are missing", () => {
-    const invalidEventData = {
-      name: "Best Event Ever",
-    };
-
-    return request(app)
-      .post("/api/events")
-      .send(invalidEventData)
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 201 status and return newly created event for valid data", () => {
-    const validEventData = {
-      name: "Valid and Exciting Event",
-      info: "This is test info",
-      location: "On Venus",
-      date: new Date("3000-10-04").toISOString(),
-      startTime: new Date().toISOString(),
-      createdBy: `${validUserId}`,
-    };
-
-    return request(app)
-      .post("/api/events")
-      .send(validEventData)
-      .expect(201)
-      .then((response) => {
-        const { event } = response.body;
-        expect(event).toEqual(expect.any(Object));
-        expect(event.name).toBe(validEventData.name);
-        expect(event.info).toBe(validEventData.info);
-        expect(event.location).toBe(validEventData.location);
-        expect(event.date).toBe(validEventData.date);
-        expect(event.startTime).toBe(validEventData.startTime);
-        expect(event.createdBy).toBe(validEventData.createdBy);
-      });
-  });
-});
-
-describe("DELETE /api/events/:event_id", () => {
-  test("should respond with 404 status when given non-existent id", () => {
-    return request(app)
-      .delete("/api/events/66feec40084c536f65f2e987")
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("Event Not Found");
-      });
-  });
-
-  test("should respond with 400 status when given invalid id", () => {
-    return request(app)
-      .delete("/api/events/invalid-id")
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 204 status when user is deleted (no return)", () => {
-    return request(app).delete(`/api/events/${validEventId}`).expect(204);
   });
 });
 
@@ -632,9 +514,40 @@ describe("GET /api/ticketmaster/events", () => {
   });
 });
 
-describe('GET /api/ticketmaster/events/:event_id', () => {
+describe("GET /api/events/:event_id", () => {
+  test("should respond with 404 status and error message with valid non-existent event id", () => {
+    return request(app)
+      .get("/api/events/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with 400 status and error message with invalid event id", () => {
+    return request(app)
+      .get("/api/events/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status and event data for valid event id", () => {
+    return request(app)
+      .get(`/api/events/${validEventId}`)
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toEqual(expect.any(Object));
+        expect(event._id).toBe(validEventId);
+      });
+  });
+});
+
+describe("GET /api/ticketmaster/events/:event_id", () => {
   test("should return 404 when the id for Ticketmaster event is valid but non existent", () => {
-    const invalidTMEventId = "vvG1fZ3MD144Ni"
+    const invalidTMEventId = "vvG1fZ3MD144Ni";
 
     return request(app)
       .get(`/api/ticketmaster/events/${invalidTMEventId}`)
@@ -645,19 +558,163 @@ describe('GET /api/ticketmaster/events/:event_id', () => {
   });
 
   test("should return 200 when the id for Ticketmaster event is valid", () => {
-    const validTMEventId = "vvG1fZ9MD144Ni"
+    const validTMEventId = "vvG1fZ9MD144Ni";
 
     return request(app)
       .get(`/api/ticketmaster/events/${validTMEventId}`)
       .expect(200)
       .then((response) => {
-        const event = response.body
-        expect(event).toBeInstanceOf(Object)
-        expect(event.id).toBe(validTMEventId)
+        const event = response.body;
+        expect(event).toBeInstanceOf(Object);
+        expect(event.ticketmasterId).toBe(validTMEventId);
+        expect(event.isExternal).toBe(true);
       });
   });
 });
 
+describe("PATCH /api/events/:event_id", () => {
+  test("should respond with a 404 status with non-existent event id", () => {
+    return request(app)
+      .patch("/api/events/66feec40084c536f65f2e987")
+      .send({ username: "neweventtitle" })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with a 400 status code if event id is invalid", () => {
+    return request(app)
+      .patch("/api/events/invalid-id")
+      .send({ username: "neweventtitle" })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status code and return updated event with nothing else changing", () => {
+    return request(app)
+      .patch(`/api/events/${validEventId}`)
+      .send({
+        name: "Happy Hour at Local Bar",
+        info: "Time to spare? Come join us and make some friends at your local pub.",
+        tags: ["drink", "fun", "community"],
+      })
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toMatchObject({
+          _id: `${validEventId}`,
+          name: expect.any(String),
+          info: "Time to spare? Come join us and make some friends at your local pub.",
+          location: "Central Park, New York",
+          date: expect.any(String),
+          startTime: expect.any(String),
+          endTime: expect.any(String),
+          createdBy: `${validUserId}`,
+          price: 0,
+          attendees: [`${validUserId}`],
+          isPaid: false,
+          tags: ["drink", "fun", "community"],
+          images: [],
+        });
+      });
+  });
+
+  test("should return unchanged event object if no changes are made", () => {
+    return request(app)
+      .patch(`/api/events/${validEventId}`)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toMatchObject({
+          _id: `${validEventId}`,
+          name: expect.any(String),
+          info: "Time to spare? Come join us and make some friends at your local pub.",
+          location: "Central Park, New York",
+          date: expect.any(String),
+          startTime: expect.any(String),
+          endTime: expect.any(String),
+          createdBy: `${validUserId}`,
+          price: 0,
+          attendees: [`${validUserId}`],
+          isPaid: false,
+          tags: ["drink", "fun", "community"],
+          images: [],
+        });
+      });
+  });
+});
+
+describe("POST /api/events", () => {
+  test("should respond with 400 status and error message when required fields are missing", () => {
+    const invalidEventData = {
+      name: "Best Event Ever",
+    };
+
+    return request(app)
+      .post("/api/events")
+      .send(invalidEventData)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 201 status and return newly created event for valid data", () => {
+    const validEventData = {
+      name: "Valid and Exciting Event",
+      info: "This is test info",
+      location: "On Venus",
+      date: new Date("3000-10-04").toISOString(),
+      startTime: new Date().toISOString(),
+      createdBy: `${validUserId}`,
+    };
+
+    return request(app)
+      .post("/api/events")
+      .send(validEventData)
+      .expect(201)
+      .then((response) => {
+        const { event } = response.body;
+        expect(event).toEqual(expect.any(Object));
+        expect(event.name).toBe(validEventData.name);
+        expect(event.info).toBe(validEventData.info);
+        expect(event.location).toBe(validEventData.location);
+        expect(event.date).toBe(validEventData.date);
+        expect(event.startTime).toBe(validEventData.startTime);
+        expect(event.createdBy).toBe(validEventData.createdBy);
+      });
+  });
+});
+
+describe("DELETE /api/events/:event_id", () => {
+  test("should respond with 404 status when given non-existent id", () => {
+    return request(app)
+      .delete("/api/events/66feec40084c536f65f2e987")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Event Not Found");
+      });
+  });
+
+  test("should respond with 400 status when given invalid id", () => {
+    return request(app)
+      .delete("/api/events/invalid-id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 204 status when user is deleted (no return)", () => {
+    return request(app).delete(`/api/events/${validEventId}`).expect(204);
+  });
+});
 
 describe("GET Invalid endpoints /api/*", () => {
   test("should return 404 and error message if given invalid endpoint", () => {

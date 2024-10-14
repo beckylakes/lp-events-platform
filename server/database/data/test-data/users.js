@@ -10,9 +10,4 @@ module.exports = [
     email: "random@email.com",
     password: "bca123"
   },
-  {
-    username: "anotheruser",
-    email: "test@email.com",
-    password: "cba123"
-  },
 ];

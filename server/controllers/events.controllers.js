@@ -100,7 +100,6 @@ function getTMEventById(req, res, next) {
         { ticketmasterId: event_id },
         ticketmasterEvent
       ).then((event) => {
-        console.log(event);
         res.status(200).send(event);
       });
     })
