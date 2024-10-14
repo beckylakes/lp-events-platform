@@ -4,6 +4,7 @@ import LoginButton from "./LoginButton";
 import SignUpButton from "./SignUpButton";
 import AuthContext from "../context/AuthProvider";
 import LogoutButton from "./LogoutButton";
+import { Link } from "react-router-dom";
 
 const NavigationBar = () => {
   const { auth } = useContext(AuthContext);
@@ -13,8 +14,14 @@ const NavigationBar = () => {
       <SearchBar />
       {auth?.user ? (
         <>
-          <img id="avatar" src={auth.user.avatar} alt={`${auth.user.username}'s avatar`} />
-          <p>{auth.user.username}!</p>
+          <Link to={`/user/${auth.user._id}`}>
+            <img
+              id="avatar"
+              src={auth.user.avatar}
+              alt={`${auth.user.username}'s avatar`}
+            />
+            <p>Logged in as: {auth.user.username}</p>
+          </Link>
           <LogoutButton />
         </>
       ) : (

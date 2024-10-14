@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import LoginPage from "./components/LoginPage";
 import SignUpPage from "./components/SignUpPage";
 import SingleEvent from "./components/SingleEvent";
+import UserPage from "./components/UserPage";
 
 const App = () => {
   const location = useLocation();
@@ -19,7 +20,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/events/:id" element={<SingleEvent/>}/>
-        {/* <Route path="/user/mytickets" element={<TicketsPage />} /> */}
+        <Route path="/user/:user_id" element={<UserPage />} />
       </Routes>
     </main>
   );
