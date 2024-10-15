@@ -56,7 +56,7 @@ export const getEventById = (id) => {
   if (id.length < 24) {
     return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
       return data;
-    })
+    });
   }
 
   return api.get(`events/${id}`).then(({ data }) => {
@@ -79,7 +79,13 @@ export const attendEvent = (userId, eventId) => {
 };
 
 export const getUserById = (user_id) => {
-  return api.get(`users/${user_id}`).then(({data}) => {
-return data.user
+  return api.get(`users/${user_id}`).then(({ data }) => {
+    return data.user;
+  });
+};
+
+export const updateUserRole = (user_id, newRole) => {
+  return api.patch(`users/:${user_id}`).then((data) => {
+    return data.user;
   });
 };
