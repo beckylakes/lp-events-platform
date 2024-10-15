@@ -45,7 +45,7 @@ async function insertUser({ username, email, password }) {
 
   if (existingUser) {
     return Promise.reject({
-      statusCode: 400,
+      statusCode: 409,
       msg: "Sorry! That email is already taken",
     });
   }
@@ -102,6 +102,12 @@ async function findUser(email, password) {
   return user;
 }
 
+function findUserByRefreshToken(refreshToken){
+  return User.findOne(refreshToken).then((user) => {
+    return user
+  })
+}
+
 module.exports = {
   selectAllUsers,
   selectUserById,
@@ -109,4 +115,5 @@ module.exports = {
   insertUser,
   deleteUser,
   findUser,
+  findUserByRefreshToken
 };

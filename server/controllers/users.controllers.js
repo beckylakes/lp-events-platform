@@ -1,4 +1,3 @@
-require("dotenv").config();
 const {
   selectEventById,
   findTMEventById,
@@ -10,9 +9,14 @@ const {
   insertUser,
   deleteUser,
   findUser,
+  findUserByRefreshToken
 } = require("../models/users.models.js");
+require("dotenv").config();
+const jwt = require('jsonwebtoken')
 
 const API_KEY = process.env.API_KEY;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN_SECRET
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET
 
 function getUsers(req, res, next) {
   return selectAllUsers()
@@ -76,12 +80,63 @@ function deleteUserByID(req, res, next) {
 function postLogin(req, res, next) {
   const { email, password } = req.body;
   return findUser(email, password)
-    .then((user) => {
-      res.status(200).send({ msg: "Logged in successfully", user });
+    .then((user) => { 
+      const accessToken = jwt.sign({"id": user._id}, ACCESS_TOKEN, {expiresIn: '15m'})
+      const refreshToken = jwt.sign({"id": user._id}, REFRESH_TOKEN, {expiresIn: '1d'})
+
+      user.refreshToken = refreshToken
+      return user.save().then(() => {
+        res.cookie('jwt', refreshToken, {httpOnly: true, sameSite: "None", secure: true, maxAge: 24 * 60 * 60 * 1000})
+        res.status(200).send({accessToken, user})
+      })
+
+      
     })
     .catch((err) => {
       next(err);
     });
+}
+
+//Write tests for this
+function postLogout(req, res, next) {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.status(204); 
+
+  const refreshToken = cookies.jwt;
+  return findUserByRefreshToken({ refreshToken })
+    .then((user) => {
+      if (!user) {
+        res.clearCookie('jwt', { httpOnly: true, sameSite: "None", secure: true });
+        return res.sendStatus(204);
+      }
+
+      user.refreshToken = '';
+      return user.save().then(() => {
+        res.clearCookie('jwt', { httpOnly: true, sameSite: "None", secure: true });
+        res.sendStatus(204).send({msg: "Successfully logged out."});
+      });
+    })
+    .catch(next);
+}
+
+//Write tests for this
+function postRefreshToken(req, res, next) {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.status(401).send({ msg: 'Unauthorized' });
+
+  const refreshToken = cookies.jwt;
+  return findUserByRefreshToken({ refreshToken })
+    .then((user) => {
+      if (!user) return res.status(403).send({ msg: 'Forbidden' });
+
+      jwt.verify(refreshToken, REFRESH_TOKEN, (err, decoded) => {
+        if (err || user._id.toString() !== decoded.id) return res.status(403).send({ msg: 'Forbidden' });
+
+        const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+        res.status(200).json({ accessToken });
+      });
+    })
+    .catch((err) => next(err));
 }
 
 function postAttendEvent(req, res, next) {
@@ -168,6 +223,8 @@ module.exports = {
   postUser,
   deleteUserByID,
   postLogin,
+  postLogout,
+  postRefreshToken,
   postAttendEvent,
-  postAttendTMEvent,
+  postAttendTMEvent
 };
