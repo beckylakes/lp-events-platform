@@ -5,9 +5,10 @@ import SignUpButton from "./SignUpButton";
 import AuthContext from "../context/AuthProvider";
 import LogoutButton from "./LogoutButton";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const NavigationBar = () => {
-  const { auth } = useContext(AuthContext);
+  const { auth } = useAuth();
 
   return (
     <nav style={styles.nav}>

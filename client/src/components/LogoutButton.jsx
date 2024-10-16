@@ -1,15 +1,17 @@
 import { useContext } from "react";
 import AuthContext from "../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../api/api";
+import useLogout from "../hooks/useLogout";
 
 const LogoutButton = () => {
-  const { setAuth } = useContext(AuthContext);
+  // const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
+  const logout = useLogout();
 
-  const handleLogout = () => {
-    setAuth({});
-    localStorage.removeItem("auth");
-    navigate("/login");
+  const handleLogout = async() => {
+     await logout();
+     navigate("/home")
   };
 
   return <button onClick={handleLogout}>Logout</button>;

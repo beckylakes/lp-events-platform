@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const User = require("../db-models/userModel");
+const User = require("../schemas/userSchema");
 
 function selectAllUsers() {
   return User.find().then((result) => {
@@ -12,7 +12,7 @@ function selectUserById(user_id) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -20,7 +20,7 @@ function selectUserById(user_id) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "User Not Found",
+        msg: "User not found",
       });
     }
     return result;
@@ -31,11 +31,17 @@ function updateUser(user_id, body) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
-  return User.findByIdAndUpdate(user_id, body).then(() => {
+  if(body.roles){
+    console.log(body)
+    return User.findByIdAndUpdate(user_id, { $set: body }, { new: true }).then((user) => {
+      return selectUserById(user_id);
+    });
+  }
+  return User.findByIdAndUpdate(user_id, body).then((user) => {
     return selectUserById(user_id);
   });
 }
@@ -45,8 +51,8 @@ async function insertUser({ username, email, password }) {
 
   if (existingUser) {
     return Promise.reject({
-      statusCode: 400,
-      msg: "Sorry! That email is already taken",
+      statusCode: 409,
+      msg: "Sorry, that email is already taken",
     });
   }
 
@@ -56,6 +62,7 @@ async function insertUser({ username, email, password }) {
     username,
     email,
     password: hashedPassword,
+    roles: { "User": 100 }
   });
 
   return newUser;
@@ -65,7 +72,7 @@ function deleteUser(user_id) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -73,7 +80,7 @@ function deleteUser(user_id) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "User Not Found",
+        msg: "User not found",
       });
     }
     return result;
@@ -82,11 +89,11 @@ function deleteUser(user_id) {
 
 async function findUser(email, password) {
   const user = await User.findOne({ email });
-  
+
   if (!user) {
     return Promise.reject({
       statusCode: 401,
-      msg: "Sorry! That user doesn't exist",
+      msg: "Sorry, that user doesn't exist",
     });
   }
 
@@ -95,11 +102,17 @@ async function findUser(email, password) {
   if (!isPasswordCorrect) {
     return Promise.reject({
       statusCode: 401,
-      msg: "Sorry! That password is incorrect",
+      msg: "Sorry, that password is incorrect",
     });
   }
 
   return user;
+}
+
+function findUserByRefreshToken(refreshToken) {
+  return User.findOne(refreshToken).then((user) => {
+    return user;
+  });
 }
 
 module.exports = {
@@ -109,4 +122,5 @@ module.exports = {
   insertUser,
   deleteUser,
   findUser,
+  findUserByRefreshToken,
 };

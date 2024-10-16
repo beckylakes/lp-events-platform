@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Event = require("../db-models/eventModel.js");
+const Event = require("../schemas/eventSchema.js");
 
 function selectAllEvents() {
   return Event.find().then((result) => {
@@ -11,7 +11,7 @@ function selectEventById(event_id, user) {
   if (!mongoose.Types.ObjectId.isValid(event_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
       user: user,
     });
   }
@@ -20,7 +20,7 @@ function selectEventById(event_id, user) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "Event Not Found",
+        msg: "Event not found",
       });
     }
     return result;
@@ -31,7 +31,7 @@ function updateEvent(event_id, body) {
   if (!mongoose.Types.ObjectId.isValid(event_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -58,7 +58,7 @@ function deleteEvent(event_id) {
   if (!mongoose.Types.ObjectId.isValid(event_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -66,7 +66,7 @@ function deleteEvent(event_id) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "Event Not Found",
+        msg: "Event not found",
       });
     }
     return result;
@@ -78,7 +78,7 @@ function selectTMEventById(ticketmasterId) {
     if (result.length >= 1) {
       return Promise.reject({
         statusCode: 400,
-        msg: "Event Already Exists",
+        msg: "Event already exists",
       });
     }
     return result[0];
