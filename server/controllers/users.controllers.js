@@ -13,6 +13,7 @@ const {
 } = require("../models/users.models.js");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const User = require("../schemas/userSchema.js");
 
 const API_KEY = process.env.API_KEY;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN_SECRET;
@@ -21,7 +22,7 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 function getUsers(req, res, next) {
   return selectAllUsers()
     .then((users) => {
-      res.status(200).send({users});
+      res.status(200).send({ users });
     })
     .catch((err) => {
       next(err);
@@ -81,13 +82,13 @@ function postLogin(req, res, next) {
   const { email, password } = req.body;
   return findUser(email, password)
     .then((user) => {
-      const roles = Object.values(user.roles);
+      const roles = Object.values(user.roles).filter(Boolean);
 
       const accessToken = jwt.sign(
         {
-          "UserInfo": {
-            "username": user.username,
-            "roles": user.roles,
+          UserInfo: {
+            username: user.username,
+            roles: user.roles,
           },
         },
         ACCESS_TOKEN,
@@ -95,9 +96,13 @@ function postLogin(req, res, next) {
           expiresIn: "15m",
         }
       );
-      const refreshToken = jwt.sign({ "username": user.username }, REFRESH_TOKEN, {
-        expiresIn: "1d",
-      });
+      const refreshToken = jwt.sign(
+        { username: user.username },
+        REFRESH_TOKEN,
+        {
+          expiresIn: "1d",
+        }
+      );
 
       user.refreshToken = refreshToken;
       return user.save().then(() => {
@@ -109,7 +114,7 @@ function postLogin(req, res, next) {
         });
         res
           .status(200)
-          .send({ accessToken, user, msg: "Logged in successfully" });
+          .send({ accessToken, roles, user, msg: "Logged in successfully" });
       });
     })
     .catch((err) => {
@@ -123,6 +128,7 @@ function postLogout(req, res, next) {
   if (!cookies?.jwt) return res.status(204);
 
   const refreshToken = cookies.jwt;
+
   return findUserByRefreshToken({ refreshToken })
     .then((user) => {
       if (!user) {
@@ -148,36 +154,37 @@ function postLogout(req, res, next) {
 }
 
 //Can't test for cookies in supertest?
-function postRefreshToken(req, res, next) {
+async function postRefreshToken(req, res, next) {
   const cookies = req.cookies;
-
-  if (!cookies?.jwt) return res.status(401).send({ msg: "Unauthorized access" });
+  if (!cookies?.jwt)
+    return res.status(401).send({ msg: "Unauthorized access" });
 
   const refreshToken = cookies.jwt;
-  return findUserByRefreshToken({ refreshToken })
-    .then((user) => {
-      if (!user) return res.status(403).send({ msg: "Forbidden access" });
-
-      jwt.verify(refreshToken, REFRESH_TOKEN, (err, decoded) => {
-        if (err || user._id.toString() !== decoded.id)
-          return res.status(403).send({ msg: "Forbidden" });
-
-        const roles = Object.values(user.roles)
-        const accessToken = jwt.sign(
-          {
-            "UserInfo":
-            {
-              "username": decoded.username,
-              "roles": roles
-            }
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "15m" }
-        );
-        res.status(200).json({ accessToken });
-      });
-    })
-    .catch((err) => next(err));
+  const foundUser = await User.findOne({ refreshToken }).exec();
+  if (!foundUser) return res.sendStatus(403); //Forbidden
+  // evaluate jwt
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err || foundUser.username !== decoded.username)
+      return res.sendStatus(403);
+    const roles = Object.values(foundUser.roles).filter(Boolean);
+    const accessToken = jwt.sign(
+      {
+        UserInfo: {
+          username: decoded.username,
+          roles: roles,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10s" }
+    );
+    res.json({
+      roles,
+      accessToken,
+      username: foundUser.username,
+      avatar: foundUser.avatar,
+      _id: foundUser._id,
+    });
+  });
 }
 
 function postAttendEvent(req, res, next) {
@@ -231,6 +238,7 @@ function postAttendTMEvent(req, res, next) {
     })
     .then((response) => response.json())
     .then((tmEvent) => {
+      console.log(tmEvent)
       return findTMEventById({ ticketmasterId: eventId }, tmEvent);
     })
     .then((event) => {

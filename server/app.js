@@ -44,10 +44,10 @@ app.get("/", (req, res, next) => {
   return res.status(200).send({ hello: "world!" });
 });
 
-app.post("/api/users/login", postLogin) //login
-app.post("/api/users", postUser); //register
-app.post("/api/users/refresh", postRefreshToken); // needs testing
-app.post("/api/users/logout", postLogout); // logout - needs testing
+app.post("/api/users/login", postLogin);
+app.post("/api/users", postUser); 
+app.post("/api/users/refresh", postRefreshToken);
+app.post("/api/users/logout", postLogout);
 
 app.get("/api/users", getUsers);
 app.get("/api/users/:user_id", getUserById);

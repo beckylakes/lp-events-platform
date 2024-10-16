@@ -110,7 +110,6 @@ async function findUser(email, password) {
 }
 
 function findUserByRefreshToken(refreshToken) {
-  console.log(refreshToken)
   return User.findOne(refreshToken).then((user) => {
     return user;
   });
