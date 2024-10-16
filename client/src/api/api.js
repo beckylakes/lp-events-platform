@@ -1,8 +1,15 @@
 import axios from "axios";
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: "http://localhost:9090/api/",
 });
+
+export const axiosPrivate = axios.create({
+  baseURL: "http://localhost:9090/api/",
+  headers: {'Content-Type': 'application/json'},
+  withCredentials: true,
+})
+
 
 export const getEvents = () => {
   return api.get("events").then(({ data }) => {
@@ -19,7 +26,6 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
-      // This is design choice => do I want to display all ticketmaster events, even if the data is slightly odd?
       const filteredLocalEvents = localEvents.filter(
         (event) => event.isExternal === false
       );
@@ -47,9 +53,20 @@ export const postUser = (username, email, password) => {
 };
 
 export const loginUser = (email, password) => {
-  return api.post("users/login", { email, password }).then(({ data }) => {
-    return data;
-  });
+  return api
+    .post("users/login", { email, password }, { withCredentials: true })
+    .then(({ data }) => {
+      return data;
+    });
+};
+
+export const logoutUser = () => {
+  return api
+    .post("users/logout", {}, { withCredentials: true })
+    .then((data) => {
+      console.log(data);
+      return data;
+    });
 };
 
 export const getEventById = (id) => {
@@ -78,14 +95,33 @@ export const attendEvent = (userId, eventId) => {
   });
 };
 
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
 export const getUserById = (user_id) => {
-  return api.get(`users/${user_id}`).then(({ data }) => {
-    return data.user;
-  });
+  return api
+    .get(`users/${user_id}`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${getCookie("jwt")}` },
+    })
+    .then(({ data }) => {
+      return data.user;
+    });
 };
 
 export const updateUserRole = (user_id, newRole) => {
   return api.patch(`users/:${user_id}`).then((data) => {
     return data.user;
   });
+};
+
+export const refreshToken = () => {
+  return api
+    .post("users/refresh", {}, { withCredentials: true })
+    .then(({ data }) => {
+      return data;
+    });
 };

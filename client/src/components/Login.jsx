@@ -1,19 +1,21 @@
-import { useState, useEffect, useRef, useContext } from "react";
-import AuthContext from "../context/AuthProvider";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import useAuth from "../hooks/useAuth";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser } from "../api/api";
 
 const Login = () => {
-  const { setAuth } = useContext(AuthContext);
+  const { setAuth } = useAuth();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/home";
+
   const userRef = useRef();
   const errRef = useRef();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     userRef.current.focus();
@@ -26,20 +28,21 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     loginUser(email, password)
-      .then(({ msg, user }) => {
-        if (msg === "Logged in successfully") {
-          console.log(user, `Logged in successfully as ${user.username}`);
-          setAuth({ user });
-          setEmail("");
-          setPassword("");
-          setSuccess(true);
-          navigate("/");
-        }
+      .then(({ msg, roles, user, accessToken }) => {
+        console.log(`Logged in successfully as ${user.username}`, user);
+        setAuth({ user, password, roles, accessToken });
+        setEmail("");
+        setPassword("");
+        navigate(from, { replace: true });
       })
       .catch((err) => {
-        // Sorry! That password is incorrect
-        // Sorry! That user doesn't exist
-        console.log(err.response.data.msg);
+        console.log(err);
+        if (!err?.response) {
+          setErrorMessage("No Server Response");
+        } else {
+          setErrorMessage(err.response.data.msg);
+        }
+        errRef.current.focus();
       });
   };
 

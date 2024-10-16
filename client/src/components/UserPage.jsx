@@ -11,10 +11,10 @@ const UserPage = () => {
 
   useEffect(() => {
     getUserById(user_id).then((response) => {
+      console.log(response)
       setUser(response);
     });
   }, [user_id]);
-
   useEffect(() => {
     if (user && user.attendingEvents && user.attendingEvents.length > 0) {
       Promise.all(
@@ -49,15 +49,15 @@ const UserPage = () => {
       <h2>My Profile</h2>
       <p>Username: {user.username}</p>
       <p>Email: {user.email}</p>
-      <p>Role: {user.role}</p>
+      <p>Created: {user.createdAt}</p>
 
       {/* Button to change role */}
       <button onClick={handleRoleChange} disabled={loadingRoleChange}>
         {loadingRoleChange
           ? "Updating..."
           : user.role === "member"
-          ? "Become a Staff"
-          : "Become a Member"}
+          ? "Change to normal member"
+          : "Become an Event Organiser"}
       </button>
 
       <p>Events I'm attending:</p>
