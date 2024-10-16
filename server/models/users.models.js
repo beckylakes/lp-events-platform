@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const User = require("../db-models/userModel");
+const User = require("../schemas/userSchema");
 
 function selectAllUsers() {
   return User.find().then((result) => {
@@ -35,7 +35,13 @@ function updateUser(user_id, body) {
     });
   }
 
-  return User.findByIdAndUpdate(user_id, body).then(() => {
+  if(body.roles){
+    console.log(body)
+    return User.findByIdAndUpdate(user_id, { $set: body }, { new: true }).then((user) => {
+      return selectUserById(user_id);
+    });
+  }
+  return User.findByIdAndUpdate(user_id, body).then((user) => {
     return selectUserById(user_id);
   });
 }
@@ -56,6 +62,7 @@ async function insertUser({ username, email, password }) {
     username,
     email,
     password: hashedPassword,
+    roles: { "User": 100 }
   });
 
   return newUser;
@@ -82,7 +89,7 @@ function deleteUser(user_id) {
 
 async function findUser(email, password) {
   const user = await User.findOne({ email });
-  
+
   if (!user) {
     return Promise.reject({
       statusCode: 401,
@@ -102,10 +109,10 @@ async function findUser(email, password) {
   return user;
 }
 
-function findUserByRefreshToken(refreshToken){
+function findUserByRefreshToken(refreshToken) {
   return User.findOne(refreshToken).then((user) => {
-    return user
-  })
+    return user;
+  });
 }
 
 module.exports = {
@@ -115,5 +122,5 @@ module.exports = {
   insertUser,
   deleteUser,
   findUser,
-  findUserByRefreshToken
+  findUserByRefreshToken,
 };

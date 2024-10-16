@@ -1,19 +1,41 @@
+require("dotenv").config();
 const request = require("supertest");
 const app = require("../app.js");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
-const User = require("../db-models/userModel.js");
-const Event = require("../db-models/eventModel.js");
+const User = require("../schemas/userSchema.js");
+const Event = require("../schemas/eventSchema.js");
+
+let token;
+let validUserId, validEventId, dateCreated;
+
+function generateToken(user) {
+  const accessToken = jwt.sign(
+    {
+      UserInfo: {
+        username: user.username,
+        roles: user.roles,
+      },
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "1h" }
+  );
+  return accessToken;
+}
 
 beforeAll(async () => {
   await seed(testData);
+  
   const user = await User.findOne();
   validUserId = user._id.toString();
   dateCreated = user.createdAt.toISOString();
+  
+  token = `Bearer ${generateToken(user)}`;
+
   const event = await Event.findOne();
   validEventId = event._id.toString();
-  // updatedUserTime = user.updatedAt.toISOString();
 });
 
 afterAll(async () => {
@@ -46,7 +68,7 @@ describe("GET /api/users", () => {
             avatar: expect.any(String),
             email: expect.any(String),
             password: expect.any(String),
-            role: expect.any(String),
+            roles: expect.any(Object),
             attendingEvents: expect.any(Array),
             createdEvents: expect.any(Array),
             createdAt: expect.any(String),
@@ -88,81 +110,6 @@ describe("GET /api/users/:user_id", () => {
   });
 });
 
-describe("PATCH /api/users/:user_id", () => {
-  test("should respond with a 404 status with non-existent user id", () => {
-    return request(app)
-      .patch("/api/users/66feec40084c536f65f2e987")
-      .send({ username: "newusername" })
-      .expect(404)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("User Not Found");
-      });
-  });
-
-  test("should respond with a 400 status code if user id is invalid", () => {
-    return request(app)
-      .patch("/api/users/invalid-id")
-      .send({ username: "newusername" })
-      .expect(400)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 200 status code and return updated user with nothing else changing", () => {
-    return request(app)
-      .patch(`/api/users/${validUserId}`)
-      .send({ username: "newusername" })
-      .expect(200)
-      .then((response) => {
-        const { user } = response.body;
-        expect(user).toMatchObject({
-          _id: `${validUserId}`,
-          username: "newusername",
-          avatar:
-            "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
-          email: "qwerty@email.com",
-          password: "abc123",
-          role: "staff",
-          attendingEvents: [],
-          createdAt: `${dateCreated}`,
-          updatedAt: expect.any(String),
-        });
-        expect(user.createdEvents).toEqual(
-          expect.arrayContaining([expect.any(String)])
-        );
-      });
-  });
-
-  test("should return unchanged user object if no changes are made", () => {
-    return request(app)
-      .patch(`/api/users/${validUserId}`)
-      .send({})
-      .expect(200)
-      .then((response) => {
-        const { user } = response.body;
-        expect(user).toMatchObject({
-          _id: `${validUserId}`,
-          username: "newusername",
-          avatar:
-            "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
-          email: "qwerty@email.com",
-          password: "abc123",
-          role: "staff",
-          attendingEvents: [],
-          createdEvents: expect.any(Array),
-          createdAt: `${dateCreated}`,
-          updatedAt: expect.any(String),
-        });
-        expect(user.createdEvents).toEqual(
-          expect.arrayContaining([expect.any(String)])
-        );
-      });
-  });
-});
-
 describe("POST /api/users", () => {
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidUserData = {
@@ -178,7 +125,7 @@ describe("POST /api/users", () => {
       });
   });
 
-  test("should return 400 when the email is already in use", () => {
+  test("should return 409 when the email is already in use", () => {
     return request(app)
       .post("/api/users")
       .send({
@@ -186,7 +133,7 @@ describe("POST /api/users", () => {
         password: "password123",
         username: "Another User",
       })
-      .expect(400)
+      .expect(409)
       .then((response) => {
         expect(response.body.msg).toBe("Sorry! That email is already taken");
       });
@@ -194,10 +141,9 @@ describe("POST /api/users", () => {
 
   test("should respond with 201 status and return newly created user for valid data", () => {
     const validUserData = {
-      username: "Valid User",
-      email: "validuser@email.com",
+      username: "validuser",
+      email: "test@email.com",
       password: "securepassword123",
-      role: "member",
     };
 
     return request(app)
@@ -211,6 +157,85 @@ describe("POST /api/users", () => {
         expect(user.username).toBe(validUserData.username);
         expect(user.email).toBe(validUserData.email);
         expect(user.role).toBe(validUserData.role);
+      });
+  });
+});
+
+describe("PATCH /api/users/:user_id", () => {
+  test("should respond with a 404 status with non-existent user id", () => {
+    return request(app)
+      .patch("/api/users/66feec40084c536f65f2e987")
+      .set("Authorization", token)
+      .send({ username: "newusername" })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("User Not Found");
+      });
+  });
+
+  test("should respond with a 400 status code if user id is invalid", () => {
+    return request(app)
+      .patch("/api/users/invalid-id")
+      .set("Authorization", token)
+      .send({ username: "newusername" })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 200 status code and return updated user with nothing else changing", () => {
+    return request(app)
+      .patch(`/api/users/${validUserId}`)
+      .set("Authorization", token)
+      .send({ username: "newusername" })
+      .expect(200)
+      .then((response) => {
+        const { user } = response.body;
+        expect(user).toMatchObject({
+          _id: `${validUserId}`,
+          username: "newusername",
+          avatar:
+            "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
+          email: "qwerty@email.com",
+          password: "abc123",
+          roles: { "Organiser" : 200 },
+          attendingEvents: [],
+          createdAt: `${dateCreated}`,
+          updatedAt: expect.any(String),
+        });
+        expect(user.createdEvents).toEqual(
+          expect.arrayContaining([expect.any(String)])
+        );
+      });
+  });
+
+  test("should return unchanged user object if no changes are made", () => {
+    return request(app)
+      .patch(`/api/users/${validUserId}`)
+      .set("Authorization", token)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        const { user } = response.body;
+        expect(user).toMatchObject({
+          _id: `${validUserId}`,
+          username: "newusername",
+          avatar:
+            "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
+          email: "qwerty@email.com",
+          password: "abc123",
+          roles: { User: 100 },
+          attendingEvents: [],
+          createdEvents: expect.any(Array),
+          createdAt: `${dateCreated}`,
+          updatedAt: expect.any(String),
+        });
+        expect(user.createdEvents).toEqual(
+          expect.arrayContaining([expect.any(String)])
+        );
       });
   });
 });
@@ -250,7 +275,7 @@ describe("POST /api/users/login", () => {
       email: "extra@email.com",
       password: hashedPassword,
       username: "randomuser",
-      role: "member",
+      roles: { User: 100 },
     });
 
     return request(app)
@@ -271,6 +296,7 @@ describe("POST /api/users/:user_id/attend", () => {
   test("should return 400 and error message with invalid event id", () => {
     return request(app)
       .post(`/api/users/${validUserId}/attend`)
+      .set("Authorization", token)
       .send({ eventId: "invalidId1234" })
       .expect(400)
       .then((response) => {
@@ -282,6 +308,7 @@ describe("POST /api/users/:user_id/attend", () => {
   test("should return 201 and message with valid event id and update user with new attendance array", () => {
     return request(app)
       .post(`/api/users/${validUserId}/attend`)
+      .set("Authorization", token)
       .send({ eventId: validEventId })
       .expect(201)
       .then((response) => {
@@ -297,6 +324,7 @@ describe("POST /api/users/:user_id/attend", () => {
   test("should return 400 and message with valid event id without changing attendance array if user already is attending", () => {
     return request(app)
       .post(`/api/users/${validUserId}/attend`)
+      .set("Authorization", token)
       .send({ eventId: validEventId })
       .expect(400)
       .then((response) => {
@@ -315,6 +343,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   test("should return 404 if the user is not found (non-existent id)", () => {
     return request(app)
       .post(`/api/users/670d46b52000794ef12446a1/ticketmaster/attend`)
+      .set("Authorization", token)
       .send({ eventId: validEventId })
       .expect(404)
       .then((response) => {
@@ -326,6 +355,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   test("should return 400 if the user is not found (invalid id)", () => {
     return request(app)
       .post(`/api/users/invalidUserId/ticketmaster/attend`)
+      .set("Authorization", token)
       .send({ eventId: validEventId })
       .expect(400)
       .then((response) => {
@@ -337,6 +367,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   test("should return 201 and update user with valid event ID", () => {
     return request(app)
       .post(`/api/users/${validUserId}/ticketmaster/attend`)
+      .set("Authorization", token)
       .send({ eventId: "vvG1fZ9MD144Ni" })
       .expect(201)
       .then((response) => {
@@ -352,6 +383,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   test("should return 400 if the user is already attending the event", () => {
     return request(app)
       .post(`/api/users/${validUserId}/ticketmaster/attend`)
+      .set("Authorization", token)
       .send({ eventId: "vvG1fZ9MD144Ni" })
       .expect(400)
       .then((response) => {
@@ -361,30 +393,6 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
         expect(user._id).toBe(validUserId);
         expect(user.attendingEvents).toHaveLength(2);
       });
-  });
-});
-
-describe("DELETE /api/users/:user_id", () => {
-  test("should respond with 404 status when given non-existent id", () => {
-    return request(app)
-      .delete("/api/users/66feec40084c536f65f2e987")
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("User Not Found");
-      });
-  });
-
-  test("should respond with 400 status when given invalid id", () => {
-    return request(app)
-      .delete("/api/users/invalid-id")
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
-      });
-  });
-
-  test("should respond with 204 status when user is deleted (no return)", () => {
-    return request(app).delete(`/api/users/${validUserId}`).expect(204);
   });
 });
 
@@ -576,6 +584,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 404 status with non-existent event id", () => {
     return request(app)
       .patch("/api/events/66feec40084c536f65f2e987")
+      .set("Authorization", token)
       .send({ username: "neweventtitle" })
       .expect(404)
       .then((response) => {
@@ -587,6 +596,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with a 400 status code if event id is invalid", () => {
     return request(app)
       .patch("/api/events/invalid-id")
+      .set("Authorization", token)
       .send({ username: "neweventtitle" })
       .expect(400)
       .then((response) => {
@@ -598,6 +608,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should respond with 200 status code and return updated event with nothing else changing", () => {
     return request(app)
       .patch(`/api/events/${validEventId}`)
+      .set("Authorization", token)
       .send({
         name: "Happy Hour at Local Bar",
         info: "Time to spare? Come join us and make some friends at your local pub.",
@@ -627,6 +638,7 @@ describe("PATCH /api/events/:event_id", () => {
   test("should return unchanged event object if no changes are made", () => {
     return request(app)
       .patch(`/api/events/${validEventId}`)
+      .set("Authorization", token)
       .send({})
       .expect(200)
       .then((response) => {
@@ -658,6 +670,7 @@ describe("POST /api/events", () => {
 
     return request(app)
       .post("/api/events")
+      .set("Authorization", token)
       .send(invalidEventData)
       .expect(400)
       .then((response) => {
@@ -677,6 +690,7 @@ describe("POST /api/events", () => {
 
     return request(app)
       .post("/api/events")
+      .set("Authorization", token)
       .send(validEventData)
       .expect(201)
       .then((response) => {
@@ -696,6 +710,7 @@ describe("DELETE /api/events/:event_id", () => {
   test("should respond with 404 status when given non-existent id", () => {
     return request(app)
       .delete("/api/events/66feec40084c536f65f2e987")
+      .set("Authorization", token)
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Event Not Found");
@@ -705,6 +720,7 @@ describe("DELETE /api/events/:event_id", () => {
   test("should respond with 400 status when given invalid id", () => {
     return request(app)
       .delete("/api/events/invalid-id")
+      .set("Authorization", token)
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Bad Request");
@@ -712,7 +728,36 @@ describe("DELETE /api/events/:event_id", () => {
   });
 
   test("should respond with 204 status when user is deleted (no return)", () => {
-    return request(app).delete(`/api/events/${validEventId}`).expect(204);
+    return request(app)
+      .delete(`/api/events/${validEventId}`)
+      .set("Authorization", token)
+      .expect(204);
+  });
+});
+
+describe("DELETE /api/users/:user_id", () => {
+  test("should respond with 404 status when given non-existent id", () => {
+    return request(app)
+      .delete("/api/users/66feec40084c536f65f2e987")
+      .set("Authorization", token)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("User Not Found");
+      });
+  });
+
+  test("should respond with 400 status when given invalid id", () => {
+    return request(app)
+      .delete("/api/users/invalid-id")
+      .set("Authorization", token)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("should respond with 204 status when user is deleted (no return)", () => {
+    return request(app).delete(`/api/users/${validUserId}`).set("Authorization", token).expect(204);
   });
 });
 

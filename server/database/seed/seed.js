@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const User = require("../../db-models/userModel.js");
-const Event = require("../../db-models/eventModel.js")
+const User = require("../../schemas/userSchema.js");
+const Event = require("../../schemas/eventSchema.js");
 
 const seed = async ({ userData, eventData }) => {
   try {

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Event = require("../db-models/eventModel.js");
+const Event = require("../schemas/eventSchema.js");
 
 function selectAllEvents() {
   return Event.find().then((result) => {

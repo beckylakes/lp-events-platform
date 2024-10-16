@@ -22,10 +22,13 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      enum: ["staff", "member"],
-      default: "member",
+    roles: {
+      User: {
+        type: Number,
+        default: 100
+    },
+    Organiser: Number,
+    Admin: Number
     },
     attendingEvents: [
       {
