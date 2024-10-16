@@ -12,7 +12,7 @@ function selectUserById(user_id) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -20,7 +20,7 @@ function selectUserById(user_id) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "User Not Found",
+        msg: "User not found",
       });
     }
     return result;
@@ -31,7 +31,7 @@ function updateUser(user_id, body) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -52,7 +52,7 @@ async function insertUser({ username, email, password }) {
   if (existingUser) {
     return Promise.reject({
       statusCode: 409,
-      msg: "Sorry! That email is already taken",
+      msg: "Sorry, that email is already taken",
     });
   }
 
@@ -72,7 +72,7 @@ function deleteUser(user_id) {
   if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return Promise.reject({
       statusCode: 400,
-      msg: "Bad Request",
+      msg: "Bad request",
     });
   }
 
@@ -80,7 +80,7 @@ function deleteUser(user_id) {
     if (result === null) {
       return Promise.reject({
         statusCode: 404,
-        msg: "User Not Found",
+        msg: "User not found",
       });
     }
     return result;
@@ -93,7 +93,7 @@ async function findUser(email, password) {
   if (!user) {
     return Promise.reject({
       statusCode: 401,
-      msg: "Sorry! That user doesn't exist",
+      msg: "Sorry, that user doesn't exist",
     });
   }
 
@@ -102,7 +102,7 @@ async function findUser(email, password) {
   if (!isPasswordCorrect) {
     return Promise.reject({
       statusCode: 401,
-      msg: "Sorry! That password is incorrect",
+      msg: "Sorry, that password is incorrect",
     });
   }
 
@@ -110,6 +110,7 @@ async function findUser(email, password) {
 }
 
 function findUserByRefreshToken(refreshToken) {
+  console.log(refreshToken)
   return User.findOne(refreshToken).then((user) => {
     return user;
   });

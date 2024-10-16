@@ -94,7 +94,7 @@ function getTMEventById(req, res, next) {
         ticketmasterEvent.errors.length > 0 &&
         ticketmasterEvent.errors[0].code === "DIS1004"
       ) {
-        return res.status(404).send({ msg: "Event Not Found" });
+        return res.status(404).send({ msg: "Event not found" });
       }
       return findTMEventById(
         { ticketmasterId: event_id },

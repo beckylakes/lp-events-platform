@@ -85,7 +85,7 @@ describe("GET /api/users/:user_id", () => {
       .get("/api/users/66feec40084c536f65f2e987")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("User Not Found");
+        expect(response.body.msg).toBe("User not found");
       });
   });
 
@@ -94,7 +94,7 @@ describe("GET /api/users/:user_id", () => {
       .get("/api/users/invalid-id")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -121,7 +121,7 @@ describe("POST /api/users", () => {
       .send(invalidUserData)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -135,7 +135,7 @@ describe("POST /api/users", () => {
       })
       .expect(409)
       .then((response) => {
-        expect(response.body.msg).toBe("Sorry! That email is already taken");
+        expect(response.body.msg).toBe("Sorry, that email is already taken");
       });
   });
 
@@ -170,7 +170,7 @@ describe("PATCH /api/users/:user_id", () => {
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("User Not Found");
+        expect(msg).toBe("User not found");
       });
   });
 
@@ -182,7 +182,7 @@ describe("PATCH /api/users/:user_id", () => {
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -251,7 +251,7 @@ describe("POST /api/users/login", () => {
       .expect(401)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Sorry! That user doesn't exist");
+        expect(msg).toBe("Sorry, that user doesn't exist");
       });
   });
 
@@ -265,7 +265,7 @@ describe("POST /api/users/login", () => {
       .expect(401)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Sorry! That password is incorrect");
+        expect(msg).toBe("Sorry, that password is incorrect");
       });
   });
 
@@ -301,7 +301,7 @@ describe("POST /api/users/:user_id/attend", () => {
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -313,7 +313,7 @@ describe("POST /api/users/:user_id/attend", () => {
       .expect(201)
       .then((response) => {
         const { user, msg } = response.body;
-        expect(msg).toBe("You're going to this event!");
+        expect(msg).toBe("You're going to this event");
         expect(user).toBeInstanceOf(Object);
         expect(user._id).toBe(validUserId);
         expect(user.email).toBe("qwerty@email.com");
@@ -329,7 +329,7 @@ describe("POST /api/users/:user_id/attend", () => {
       .expect(400)
       .then((response) => {
         const { user, msg } = response.body;
-        expect(msg).toBe("You're already attending this event!");
+        expect(msg).toBe("You're already attending this event");
         expect(user).toBeInstanceOf(Object);
         expect(user._id).toBe(validUserId);
         expect(user.email).toBe("qwerty@email.com");
@@ -348,7 +348,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("User Not Found");
+        expect(msg).toBe("User not found");
       });
   });
 
@@ -360,7 +360,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -372,7 +372,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
       .expect(201)
       .then((response) => {
         const { user, msg } = response.body;
-        expect(msg).toBe("You're going to this event!");
+        expect(msg).toBe("You're going to this event");
         expect(user).toBeInstanceOf(Object);
         expect(user._id).toBe(validUserId);
         expect(user.email).toBe("qwerty@email.com");
@@ -388,7 +388,7 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
       .expect(400)
       .then((response) => {
         const { user, msg } = response.body;
-        expect(msg).toBe("You're already attending this event!");
+        expect(msg).toBe("You're already attending this event");
         expect(user).toBeInstanceOf(Object);
         expect(user._id).toBe(validUserId);
         expect(user.attendingEvents).toHaveLength(2);
@@ -528,7 +528,7 @@ describe("GET /api/events/:event_id", () => {
       .get("/api/events/66feec40084c536f65f2e987")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Event Not Found");
+        expect(response.body.msg).toBe("Event not found");
       });
   });
 
@@ -537,7 +537,7 @@ describe("GET /api/events/:event_id", () => {
       .get("/api/events/invalid-id")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -561,7 +561,7 @@ describe("GET /api/ticketmaster/events/:event_id", () => {
       .get(`/api/ticketmaster/events/${invalidTMEventId}`)
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Event Not Found");
+        expect(response.body.msg).toBe("Event not found");
       });
   });
 
@@ -589,7 +589,7 @@ describe("PATCH /api/events/:event_id", () => {
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Event Not Found");
+        expect(msg).toBe("Event not found");
       });
   });
 
@@ -601,7 +601,7 @@ describe("PATCH /api/events/:event_id", () => {
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -674,7 +674,7 @@ describe("POST /api/events", () => {
       .send(invalidEventData)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -713,7 +713,7 @@ describe("DELETE /api/events/:event_id", () => {
       .set("Authorization", token)
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Event Not Found");
+        expect(response.body.msg).toBe("Event not found");
       });
   });
 
@@ -723,7 +723,7 @@ describe("DELETE /api/events/:event_id", () => {
       .set("Authorization", token)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -742,7 +742,7 @@ describe("DELETE /api/users/:user_id", () => {
       .set("Authorization", token)
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("User Not Found");
+        expect(response.body.msg).toBe("User not found");
       });
   });
 
@@ -752,7 +752,7 @@ describe("DELETE /api/users/:user_id", () => {
       .set("Authorization", token)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad Request");
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 
@@ -767,7 +767,7 @@ describe("GET Invalid endpoints /api/*", () => {
       .get("/api/wrongendpoint")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("404: Page Not Found");
+        expect(response.body.msg).toBe("404: Page not found");
       });
   });
 });

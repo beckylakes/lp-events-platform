@@ -21,7 +21,7 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 function getUsers(req, res, next) {
   return selectAllUsers()
     .then((users) => {
-      res.status(200).send({ users });
+      res.status(200).send({users});
     })
     .catch((err) => {
       next(err);
@@ -54,7 +54,7 @@ function patchUser(req, res, next) {
 function postUser(req, res, next) {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
-    return res.status(400).send({ msg: "Bad Request" });
+    return res.status(400).send({ msg: "Bad request" });
   }
 
   return insertUser({ username, email, password })
@@ -117,7 +117,7 @@ function postLogin(req, res, next) {
     });
 }
 
-//Write tests for this
+//Can't test for this as only browser supports cookies
 function postLogout(req, res, next) {
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.status(204);
@@ -141,21 +141,22 @@ function postLogout(req, res, next) {
           sameSite: "None",
           secure: true,
         });
-        res.status(204).send({ msg: "Successfully logged out." });
+        res.status(204).send({ msg: "Successfully logged out" });
       });
     })
     .catch((err) => next(err));
 }
 
-//Write tests for this
+//Can't test for cookies in supertest?
 function postRefreshToken(req, res, next) {
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.status(401).send({ msg: "Unauthorized" });
+
+  if (!cookies?.jwt) return res.status(401).send({ msg: "Unauthorized access" });
 
   const refreshToken = cookies.jwt;
   return findUserByRefreshToken({ refreshToken })
     .then((user) => {
-      if (!user) return res.status(403).send({ msg: "Forbidden" });
+      if (!user) return res.status(403).send({ msg: "Forbidden access" });
 
       jwt.verify(refreshToken, REFRESH_TOKEN, (err, decoded) => {
         if (err || user._id.toString() !== decoded.id)
@@ -197,14 +198,14 @@ function postAttendEvent(req, res, next) {
             user.attendingEvents.push(eventId);
             return user.save().then((updatedUser) => {
               res.status(201).send({
-                msg: "You're going to this event!",
+                msg: "You're going to this event",
                 user: updatedUser,
               });
             });
           } else {
             res
               .status(400)
-              .send({ msg: "You're already attending this event!", user });
+              .send({ msg: "You're already attending this event", user });
           }
         });
     })
@@ -244,14 +245,14 @@ function postAttendTMEvent(req, res, next) {
         user.attendingEvents.push(event._id);
         return user.save().then((updatedUser) => {
           res.status(201).send({
-            msg: "You're going to this event!",
+            msg: "You're going to this event",
             user: updatedUser,
           });
         });
       } else {
         res
           .status(400)
-          .send({ msg: "You're already attending this event!", user });
+          .send({ msg: "You're already attending this event", user });
       }
     })
     .catch((err) => {
