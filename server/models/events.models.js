@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Event = require("../schemas/eventSchema.js");
+const { selectUserById } = require("./users.models.js");
 
 function selectAllEvents() {
   return Event.find().then((result) => {
@@ -40,7 +41,18 @@ function updateEvent(event_id, body) {
   });
 }
 
-function insertEvent(name, info, location, date, startTime, endTime, price, tags, images, createdBy) {
+function insertEvent(
+  name,
+  info,
+  location,
+  date,
+  startTime,
+  endTime,
+  price,
+  tags,
+  images,
+  createdBy
+) {
   const newEvent = {
     name,
     info,
@@ -53,7 +65,7 @@ function insertEvent(name, info, location, date, startTime, endTime, price, tags
     images,
     createdBy,
   };
-  console.log(newEvent)
+
   return Event.create(newEvent).then((result) => {
     return result;
   });
@@ -134,8 +146,10 @@ function findTMEventById(ticketmasterId, event) {
 }
 
 function findEventByUser(user_id) {
-  return Event.find({createdBy: user_id}).then((result) => {
-    return result;
+  return selectUserById(user_id).then((user) => {
+    return Event.find({ createdBy: user._id }).then((result) => {
+      return result
+    });
   });
 }
 
@@ -148,5 +162,5 @@ module.exports = {
   selectTMEventById,
   findTMEventById,
   insertTMEvent,
-  findEventByUser
+  findEventByUser,
 };

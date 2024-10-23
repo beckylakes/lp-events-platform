@@ -1,7 +1,7 @@
 const {
   selectEventById,
   findTMEventById,
-  findEventByUser
+  findEventByUser,
 } = require("../models/events.models.js");
 const {
   selectAllUsers,
@@ -124,7 +124,6 @@ function postLogin(req, res, next) {
     });
 }
 
-//Can't test for this as only browser supports cookies
 function postLogout(req, res, next) {
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.status(204);
@@ -240,7 +239,6 @@ function postAttendTMEvent(req, res, next) {
     })
     .then((response) => response.json())
     .then((tmEvent) => {
-      console.log(tmEvent)
       return findTMEventById({ ticketmasterId: eventId }, tmEvent);
     })
     .then((event) => {
@@ -269,12 +267,14 @@ function postAttendTMEvent(req, res, next) {
       next(err);
     });
 }
-// Write tests for
+
 function getUserEvents(req, res, next) {
-  const {user_id} = req.params
-  return findEventByUser(user_id).then((events) => {
-    res.status(200).send(events)
-  }).catch((err) => next(err))
+  const { user_id } = req.params;
+  return findEventByUser(user_id)
+    .then((events) => {
+      res.status(200).send({ events });
+    })
+    .catch((err) => next(err));
 }
 
 module.exports = {
@@ -288,5 +288,5 @@ module.exports = {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
-  getUserEvents
+  getUserEvents,
 };

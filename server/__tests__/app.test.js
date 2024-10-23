@@ -7,6 +7,7 @@ const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
 const User = require("../schemas/userSchema.js");
 const Event = require("../schemas/eventSchema.js");
+const { values } = require("../database/data/test-data/users.js");
 
 let token;
 let validUserId, validEventId, dateCreated;
@@ -27,11 +28,11 @@ function generateToken(user) {
 
 beforeAll(async () => {
   await seed(testData);
-  
+
   const user = await User.findOne();
   validUserId = user._id.toString();
   dateCreated = user.createdAt.toISOString();
-  
+
   token = `Bearer ${generateToken(user)}`;
 
   const event = await Event.findOne();
@@ -110,6 +111,56 @@ describe("GET /api/users/:user_id", () => {
   });
 });
 
+describe("GET /api/users/:user_id/myevents", () => {
+  test("should return 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .get(`/api/user/${validUserId}/myevents`)
+      .set("Authorization", "invalidToken")
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
+  test("should return 400 status if user id token is invalid", () => {
+    return request(app)
+      .get(`/api/user/invalid-id/myevents`)
+      .set("Authorization", token)
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Bad request");
+      });
+  });
+
+  test("should return 404 status if user id is non existent", () => {
+    return request(app)
+      .get(`/api/user/66feec40084c536f65f2e987/myevents`)
+      .set("Authorization", token)
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("User not found");
+      });
+  });
+
+  test("should return 200 status and array of events created by user", () => {
+    return request(app)
+      .get(`/api/user/${validUserId}/myevents`)
+      .set("Authorization", token)
+      .expect(200)
+      .then((response) => {
+        const { events } = response.body
+        expect(Array.isArray(events)).toBe(true)
+        expect(events.length).toBe(2)
+        expect(events[0].name).toBe("Community Yoga")
+        expect(events[1].name).toBe("Free Coffee & Pastries Lunch")
+      });
+  });
+
+});
+
 describe("POST /api/users", () => {
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidUserData = {
@@ -162,6 +213,18 @@ describe("POST /api/users", () => {
 });
 
 describe("PATCH /api/users/:user_id", () => {
+  test("should respond with a 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .patch(`/api/users/${validUserId}`)
+      .set("Authorization", "invalidToken")
+      .send({ username: "newusername" })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should respond with a 404 status with non-existent user id", () => {
     return request(app)
       .patch("/api/users/66feec40084c536f65f2e987")
@@ -201,7 +264,7 @@ describe("PATCH /api/users/:user_id", () => {
             "https://t4.ftcdn.net/jpg/05/49/98/39/240_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg",
           email: "qwerty@email.com",
           password: "abc123",
-          roles: { "Organiser" : 200 },
+          roles: { Organiser: 200 },
           attendingEvents: [],
           createdAt: `${dateCreated}`,
           updatedAt: expect.any(String),
@@ -293,6 +356,18 @@ describe("POST /api/users/login", () => {
 });
 
 describe("POST /api/users/:user_id/attend", () => {
+  test("should return a 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/attend`)
+      .set("Authorization", "invalidToken")
+      .send({ eventId: validEventId })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should return 400 and error message with invalid event id", () => {
     return request(app)
       .post(`/api/users/${validUserId}/attend`)
@@ -340,6 +415,18 @@ describe("POST /api/users/:user_id/attend", () => {
 });
 
 describe("POST /api/users/:user_id/ticketmaster/attend", () => {
+  test("should return a 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/ticketmaster/attend`)
+      .set("Authorization", "invalidToken")
+      .send({ eventId: validEventId })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should return 404 if the user is not found (non-existent id)", () => {
     return request(app)
       .post(`/api/users/670d46b52000794ef12446a1/ticketmaster/attend`)
@@ -528,7 +615,8 @@ describe("GET /api/events/:event_id", () => {
       .get("/api/events/66feec40084c536f65f2e987")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Event not found");
+        const { msg } = response.body;
+        expect(msg).toBe("Event not found");
       });
   });
 
@@ -537,7 +625,8 @@ describe("GET /api/events/:event_id", () => {
       .get("/api/events/invalid-id")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
+        const { msg } = response.body;
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -561,7 +650,8 @@ describe("GET /api/ticketmaster/events/:event_id", () => {
       .get(`/api/ticketmaster/events/${invalidTMEventId}`)
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Event not found");
+        const { msg } = response.body;
+        expect(msg).toBe("Event not found");
       });
   });
 
@@ -581,11 +671,23 @@ describe("GET /api/ticketmaster/events/:event_id", () => {
 });
 
 describe("PATCH /api/events/:event_id", () => {
+  test("should respond with a 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .patch(`/api/events/${validEventId}`)
+      .set("Authorization", "invalidToken")
+      .send({ name: "neweventitle" })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should respond with a 404 status with non-existent event id", () => {
     return request(app)
       .patch("/api/events/66feec40084c536f65f2e987")
       .set("Authorization", token)
-      .send({ username: "neweventtitle" })
+      .send({ name: "neweventtitle" })
       .expect(404)
       .then((response) => {
         const { msg } = response.body;
@@ -597,7 +699,7 @@ describe("PATCH /api/events/:event_id", () => {
     return request(app)
       .patch("/api/events/invalid-id")
       .set("Authorization", token)
-      .send({ username: "neweventtitle" })
+      .send({ name: "neweventtitle" })
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
@@ -663,6 +765,17 @@ describe("PATCH /api/events/:event_id", () => {
 });
 
 describe("POST /api/events", () => {
+  test("should respond with 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .post("/api/events")
+      .set("Authorization", "invalidToken")
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidEventData = {
       name: "Best Event Ever",
@@ -674,7 +787,8 @@ describe("POST /api/events", () => {
       .send(invalidEventData)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
+        const { msg } = response.body;
+        expect(msg).toBe("Bad request");
       });
   });
 
@@ -707,6 +821,17 @@ describe("POST /api/events", () => {
 });
 
 describe("DELETE /api/events/:event_id", () => {
+  test("should respond with 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .delete(`/api/events/${validEventId}`)
+      .set("Authorization", "invalidToken")
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should respond with 404 status when given non-existent id", () => {
     return request(app)
       .delete("/api/events/66feec40084c536f65f2e987")
@@ -736,6 +861,17 @@ describe("DELETE /api/events/:event_id", () => {
 });
 
 describe("DELETE /api/users/:user_id", () => {
+  test("should respond with 401 status if Authorization token is invalid", () => {
+    return request(app)
+      .delete(`/api/users/${validUserId}`)
+      .set("Authorization", "invalidToken")
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Unauthorised access");
+      });
+  });
+
   test("should respond with 404 status when given non-existent id", () => {
     return request(app)
       .delete("/api/users/66feec40084c536f65f2e987")
@@ -757,7 +893,10 @@ describe("DELETE /api/users/:user_id", () => {
   });
 
   test("should respond with 204 status when user is deleted (no return)", () => {
-    return request(app).delete(`/api/users/${validUserId}`).set("Authorization", token).expect(204);
+    return request(app)
+      .delete(`/api/users/${validUserId}`)
+      .set("Authorization", token)
+      .expect(204);
   });
 });
 

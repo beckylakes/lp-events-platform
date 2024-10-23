@@ -34,6 +34,7 @@ const corsOptions = {
   origin: "http://localhost:5173",
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 app.use(express.json());
@@ -45,34 +46,28 @@ app.get("/", (req, res, next) => {
   return res.status(200).send({ hello: "world!" });
 });
 
-app.post("/api/users/login", postLogin);
-app.post("/api/users", postUser); 
+app.post("/api/users/login", postLogin); // tested
+app.post("/api/users", postUser);  // tested
 app.post("/api/users/refresh", postRefreshToken);
-app.post("/api/users/logout", postLogout);
+app.post("/api/users/logout", postLogout); // cannot test
 
-app.get("/api/users", getUsers);
-app.get("/api/users/:user_id", getUserById);
-app.get("/api/events", getEvents);
-app.get("/api/user/:user_id/myevents", verifyJWT, verifyRoles(ROLES_LIST.Organiser), getUserEvents) //test!
-app.get("/api/ticketmaster/events", getTMEvents)
-app.get("/api/events/:event_id", getEventById);
-app.get("/api/ticketmaster/events/:event_id", getTMEventById)
+app.get("/api/users", getUsers); // tested
+app.get("/api/users/:user_id", getUserById); // tested
+app.get("/api/events", getEvents); // tested
+app.get("/api/ticketmaster/events", getTMEvents) // tested
+app.get("/api/events/:event_id", getEventById); // tested
+app.get("/api/ticketmaster/events/:event_id", getTMEventById) // tested
 
-app.patch("/api/users/:user_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), patchUser);
-app.post("/api/users/:user_id/attend", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), postAttendEvent)
-app.post("/api/users/:user_id/ticketmaster/attend", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), postAttendTMEvent)
-app.delete("/api/users/:user_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), deleteUserByID);
+app.get("/api/user/:user_id/myevents", verifyJWT, verifyRoles(ROLES_LIST.Organiser), getUserEvents) // tested
 
-app.patch("/api/events/:event_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser), patchEvent);
-app.post("/api/events", verifyJWT, verifyRoles(ROLES_LIST.Organiser), postEvent);
-app.delete("/api/events/:event_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser), deleteEventByID);
+app.patch("/api/users/:user_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), patchUser); // tested
+app.post("/api/users/:user_id/attend", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), postAttendEvent) // tested
+app.post("/api/users/:user_id/ticketmaster/attend", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), postAttendTMEvent) // tested
+app.delete("/api/users/:user_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), deleteUserByID); // tested
 
-
-// //GET request to get pics of certain event by id
-// app.get("/api/ticketmaster/events/:event_id/pics", getTMEvents)
-// //GET request for search suggestions for splash page
-// app.get("/api/ticketmaster/events/suggestions", getTMEvents)
-
+app.patch("/api/events/:event_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser), patchEvent); // tested
+app.post("/api/events", verifyJWT, verifyRoles(ROLES_LIST.Organiser), postEvent); // tested
+app.delete("/api/events/:event_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser), deleteEventByID); // tested
 
 app.use((err, req, res, next) => {
   if (err.statusCode && err.msg) {

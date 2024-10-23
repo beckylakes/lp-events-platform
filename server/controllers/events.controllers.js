@@ -46,10 +46,9 @@ function patchEvent(req, res, next) {
 
 function postEvent(req, res, next) {
   const { name, info, location, date, startTime, endTime, price, tags, images, createdBy } = req.body;
-  
-  return insertEvent(name, info, location, date, startTime, endTime, price, tags, images, user_id, createdBy)
+
+  return insertEvent(name, info, location, date, startTime, endTime, price, tags, images, createdBy)
     .then((event) => {
-      console.log(event)
       res.status(201).send({ event });
     })
     .catch((err) => {
