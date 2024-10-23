@@ -40,8 +40,21 @@ function updateEvent(event_id, body) {
   });
 }
 
-function insertEvent(new_event) {
-  return Event.create(new_event).then((result) => {
+function insertEvent(name, info, location, date, startTime, endTime, price, tags, images, createdBy) {
+  const newEvent = {
+    name,
+    info,
+    location,
+    date,
+    startTime,
+    endTime,
+    price,
+    tags,
+    images,
+    createdBy,
+  };
+  console.log(newEvent)
+  return Event.create(newEvent).then((result) => {
     return result;
   });
 }
@@ -120,6 +133,12 @@ function findTMEventById(ticketmasterId, event) {
   });
 }
 
+function findEventByUser(user_id) {
+  return Event.find({createdBy: user_id}).then((result) => {
+    return result;
+  });
+}
+
 module.exports = {
   selectAllEvents,
   selectEventById,
@@ -129,4 +148,5 @@ module.exports = {
   selectTMEventById,
   findTMEventById,
   insertTMEvent,
+  findEventByUser
 };

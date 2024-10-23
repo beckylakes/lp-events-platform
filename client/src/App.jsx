@@ -10,6 +10,8 @@ import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
 import Unauthorised from "./components/Unauthorised";
 import PersistLogin from "./components/PersistLogin";
+import MyEvents from "./components/MyEvents";
+import CreateEvent from "./components/CreateEvent";
 
 const App = () => {
   const location = useLocation();
@@ -33,11 +35,13 @@ const App = () => {
             {/* protected routes */}
             {/* <Route element={<RequireAuth allowedRoles={[100, 200]} />}>
               <Route path="/user/:user_id/settings" />
-            </Route>
+            </Route> */}
+
             <Route element={<RequireAuth allowedRoles={[200]} />}>
-              <Route path="/myevents" />
+              <Route path="/myevents" element={<MyEvents/>}/>
+              <Route path="/create-event" element={<CreateEvent />} /> 
               {/* My Events route - here you can edit, make, delete events you made*/}
-            {/* </Route> */} 
+            </Route> 
           </Route>
 
           {/* catch all */}

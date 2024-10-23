@@ -1,6 +1,7 @@
 const {
   selectEventById,
   findTMEventById,
+  findEventByUser
 } = require("../models/events.models.js");
 const {
   selectAllUsers,
@@ -43,6 +44,7 @@ function getUserById(req, res, next) {
 function patchUser(req, res, next) {
   const { user_id } = req.params;
   const newBody = req.body;
+
   return updateUser(user_id, newBody)
     .then((user) => {
       res.status(200).send({ user });
@@ -267,6 +269,13 @@ function postAttendTMEvent(req, res, next) {
       next(err);
     });
 }
+// Write tests for
+function getUserEvents(req, res, next) {
+  const {user_id} = req.params
+  return findEventByUser(user_id).then((events) => {
+    res.status(200).send(events)
+  }).catch((err) => next(err))
+}
 
 module.exports = {
   getUsers,
@@ -279,4 +288,5 @@ module.exports = {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
+  getUserEvents
 };
