@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { getEventById, getUserById, updateUserRole } from "../api/api";
+import {
+  axiosPrivate,
+  getEventById,
+  getUserById,
+  updateUserRole,
+} from "../api/api";
 import { Link, useParams } from "react-router-dom";
 import EventCard from "./EventCard";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const UserPage = () => {
   const { user_id } = useParams();
+  const axiosPrivate = useAxiosPrivate(); 
+  
   const [user, setUser] = useState(null);
   const [attendingEvents, setAttendingEvents] = useState([]);
   const [loadingRoleChange, setLoadingRoleChange] = useState(false);
 
   useEffect(() => {
     getUserById(user_id).then((response) => {
-      console.log(response)
       setUser(response);
     });
   }, [user_id]);
@@ -28,11 +35,25 @@ const UserPage = () => {
 
   const handleRoleChange = async () => {
     setLoadingRoleChange(true);
-    const newRole = user.role === "member" ? "staff" : "member"; // Toggle role
+
+    const hasOrganiserRole = user.roles?.Organiser === 200;
+
+    const updatedRoles = {
+      ...user.roles,
+      Organiser: hasOrganiserRole ? undefined : 200,
+    };
+
+    const filteredRoles = Object.fromEntries(
+      Object.entries(updatedRoles).filter(([_, value]) => value !== undefined)
+    );
 
     try {
-      const updatedUser = await updateUserRole(user._id, newRole);
-      setUser(updatedUser);
+      const updatedUser = await axiosPrivate.patch(
+        `users/${user_id}`,
+        { roles: filteredRoles }
+      );
+
+      setUser(updatedUser.data);
       setLoadingRoleChange(false);
     } catch (error) {
       console.log("Error updating role:", error);
@@ -55,8 +76,8 @@ const UserPage = () => {
       <button onClick={handleRoleChange} disabled={loadingRoleChange}>
         {loadingRoleChange
           ? "Updating..."
-          : user.role === "member"
-          ? "Change to normal member"
+          : user.roles?.Organiser === 200
+          ? "Stop being an Event Organiser"
           : "Become an Event Organiser"}
       </button>
 

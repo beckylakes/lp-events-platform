@@ -4,15 +4,21 @@ import LoginButton from "./LoginButton";
 import SignUpButton from "./SignUpButton";
 import AuthContext from "../context/AuthProvider";
 import LogoutButton from "./LogoutButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 const NavigationBar = () => {
   const { auth } = useAuth();
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+  navigate('/create-event')
+  }
 
   return (
     <nav style={styles.nav}>
       <SearchBar />
+      <button onClick={handleClick}>Create event</button>
       {auth?.user ? (
         <>
           <Link to={`/user/${auth.user._id}`}>

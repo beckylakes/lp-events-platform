@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
-import { getEventById } from "../api/api"; // Ensure this function fetches events
-import dayjs from "dayjs"; // For formatting dates
+import { getEventById } from "../api/api"; 
+import dayjs from "dayjs";
 import useAxiosPrivate from "../hooks/useAxiosPrivate"; // Use axiosPrivate
 
 const SingleEvent = () => {
@@ -42,13 +42,11 @@ const SingleEvent = () => {
       let result;
 
       if (eventId.length < 24) {
-        console.log(eventId)
         result = await axiosPrivate.post(
           `users/${userId}/ticketmaster/attend`,
           { eventId }
         );
       } else {
-        console.log(eventId)
         result = await axiosPrivate.post(`users/${userId}/attend`, { eventId });
       }
 

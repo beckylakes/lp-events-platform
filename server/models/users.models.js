@@ -36,7 +36,6 @@ function updateUser(user_id, body) {
   }
 
   if(body.roles){
-    console.log(body)
     return User.findByIdAndUpdate(user_id, { $set: body }, { new: true }).then((user) => {
       return selectUserById(user_id);
     });

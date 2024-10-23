@@ -17,7 +17,8 @@ const {
   postLogout,
   postRefreshToken,
   postAttendEvent,
-  postAttendTMEvent
+  postAttendTMEvent,
+  getUserEvents
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -52,6 +53,7 @@ app.post("/api/users/logout", postLogout);
 app.get("/api/users", getUsers);
 app.get("/api/users/:user_id", getUserById);
 app.get("/api/events", getEvents);
+app.get("/api/user/:user_id/myevents", verifyJWT, verifyRoles(ROLES_LIST.Organiser), getUserEvents) //test!
 app.get("/api/ticketmaster/events", getTMEvents)
 app.get("/api/events/:event_id", getEventById);
 app.get("/api/ticketmaster/events/:event_id", getTMEventById)
