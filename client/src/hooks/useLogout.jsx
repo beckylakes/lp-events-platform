@@ -14,7 +14,7 @@ const useLogout = () => {
         { withCredentials: true }
       );
     } catch (err) {
-      console.log(err);
+      throw new err;
     }
   };
 
