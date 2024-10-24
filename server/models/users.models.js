@@ -114,6 +114,19 @@ function findUserByRefreshToken(refreshToken) {
   });
 }
 
+async function findUsersByEvent(event_id) {
+  return User.find({
+    $or: [
+      { createdEvents: event_id },
+      { attending: event_id }
+    ]
+  });
+}
+
+async function updateUserEvents(userId, updateData) {
+  return User.findByIdAndUpdate(userId, updateData);
+}
+
 module.exports = {
   selectAllUsers,
   selectUserById,
@@ -122,4 +135,6 @@ module.exports = {
   deleteUser,
   findUser,
   findUserByRefreshToken,
+  findUsersByEvent,
+  updateUserEvents
 };

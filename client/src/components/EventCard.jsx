@@ -25,9 +25,9 @@ const EventCard = ({ event, id }) => {
   const eventLocation = location ? location : _embedded?.venues?.[0]?.name;
 
   const eventPrice = price !== undefined ? price : priceRanges?.[0]?.min;
-
+console.log(event)
   return (
-    <li>
+    <>
       <Link to={`/events/${id}`}>
         <h4>{name}</h4>
         <img
@@ -43,7 +43,7 @@ const EventCard = ({ event, id }) => {
           ? `£${eventPrice}`
           : "Free"}
       </p>
-    </li>
+</>
   );
 };
 

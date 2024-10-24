@@ -157,7 +157,7 @@ function postLogout(req, res, next) {
 async function postRefreshToken(req, res, next) {
   const cookies = req.cookies;
   if (!cookies?.jwt)
-    return res.status(401).send({ msg: "Unauthorized access" });
+    return res.status(401).send({ msg: "Unauthorised access" });
 
   const refreshToken = cookies.jwt;
   const foundUser = await User.findOne({ refreshToken }).exec();

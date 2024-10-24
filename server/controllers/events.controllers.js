@@ -8,7 +8,7 @@ const {
   selectTMEventById,
   findTMEventById,
 } = require("../models/events.models.js");
-const { selectUserById } = require("../models/users.models.js");
+const { selectUserById, findUsersByEvent, updateUserEvents } = require("../models/users.models.js");
 
 const API_KEY = process.env.API_KEY;
 
@@ -86,17 +86,34 @@ function postEvent(req, res, next) {
     .catch((err) => {
       next(err);
     });
-}
-
-function deleteEventByID(req, res, next) {
-  const { event_id } = req.params;
-  return deleteEvent(event_id)
-    .then(() => {
-      res.status(204).send();
-    })
-    .catch((err) => {
-      next(err);
+  }
+  
+  async function deleteEventByID(req, res, next) {
+    const { event_id } = req.params;
+    
+    try {
+      await deleteEvent(event_id);
+      
+      const users = await findUsersByEvent(event_id);
+      const updatePromises = users.map(async (user) => {
+        const updateData = {};
+        
+        if (user.createdEvents.includes(event_id)) {
+          updateData.$pull = { createdEvents: event_id };
+        }
+        
+        if (user.attendingEvents.includes(event_id)) {
+          updateData.$pull = { attendingEvents: event_id };
+        }
+        
+      return updateUserEvents(user._id, updateData);
     });
+
+    await Promise.all(updatePromises);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
 
 function getTMEvents(req, res, next) {

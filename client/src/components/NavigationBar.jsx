@@ -11,14 +11,12 @@ const NavigationBar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate()
 
-  const handleClick = () => {
-  navigate('/create-event')
-  }
-
   return (
     <nav style={styles.nav}>
       <SearchBar />
-      <button onClick={handleClick}>Create event</button>
+      <button onClick={() => navigate('/home')}>Home</button>
+      <button onClick={() => navigate('/create-event')}>Create event</button>
+      <button onClick={() => navigate('/myevents')}>My events</button>
       {auth?.user ? (
         <>
           <Link to={`/user/${auth.user._id}`}>

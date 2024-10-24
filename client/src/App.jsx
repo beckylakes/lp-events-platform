@@ -8,18 +8,14 @@ import SingleEvent from "./components/SingleEvent";
 import UserPage from "./components/UserPage";
 import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
-import Unauthorised from "./components/Unauthorised";
+import Error from "./components/Error";
 import PersistLogin from "./components/PersistLogin";
 import MyEvents from "./components/MyEvents";
 import CreateEvent from "./components/CreateEvent";
 
 const App = () => {
-  const location = useLocation();
-  const noHeaderPaths = ["/login", "/signup"];
-
   return (
     <main className="App">
-      {/* {!noHeaderPaths.includes(location.pathname) && <Header />} */}
       <Routes>
         <Route path="/" element={<Layout />}>
           {/* public routes */}
@@ -30,7 +26,7 @@ const App = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/events/:id" element={<SingleEvent />} />
             <Route path="/user/:user_id" element={<UserPage />} />
-            <Route path="/unauthorised" element={<Unauthorised />} />
+            <Route path="/error" element={<Error />} />
 
             {/* protected routes */}
             {/* <Route element={<RequireAuth allowedRoles={[100, 200]} />}>
@@ -38,14 +34,12 @@ const App = () => {
             </Route> */}
 
             <Route element={<RequireAuth allowedRoles={[200]} />}>
-              <Route path="/myevents" element={<MyEvents/>}/>
-              <Route path="/create-event" element={<CreateEvent />} /> 
-              {/* My Events route - here you can edit, make, delete events you made*/}
-            </Route> 
+              <Route path="/myevents" element={<MyEvents />} />
+              <Route path="/create-event" element={<CreateEvent />} />
+              {/* My Events route - here you can edit, delete events you made*/}
+            </Route>
           </Route>
-
-          {/* catch all */}
-          {/* <Route path="*" element={<404 Error Page Cannot find>}/> */}
+          <Route path="*" element={<Error />} />
         </Route>
       </Routes>
     </main>

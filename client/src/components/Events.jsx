@@ -4,7 +4,9 @@ import EventCard from "./EventCard";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
-  const [error, setError] = useState(null);
+  
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,9 +14,11 @@ const Events = () => {
       .then((allEvents) => {
         setEvents(allEvents);
         setLoading(false);
+        setError(false)
       })
       .catch((err) => {
-        setError(err.response.data.msg);
+        setError(true);
+        setErrorMessage(err.response.data.msg)
         setLoading(false);
       });
   }, []);

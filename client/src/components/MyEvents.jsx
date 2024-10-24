@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import useAuth from "../hooks/useAuth";
-import { getEventById } from "../api/api";
+import { axiosPrivate, getEventById } from "../api/api";
 
 const MyEvents = () => {
   const { auth } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
+ 
 
   const [myEvents, setMyEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,19 @@ const MyEvents = () => {
     fetchMyEvents();
   }, []);
 
+  const handleDelete = async (eventId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this event?");
+    if (!confirmDelete) return;
+
+    try {
+      await axiosPrivate.delete(`events/${eventId}`);
+      setMyEvents((prevEvents) => prevEvents.filter(event => event._id !== eventId));
+      alert('Successfully deleted event')
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    }
+  };
+
   if (loading) {
     return <p>Loading events...</p>;
   }
@@ -54,7 +68,10 @@ const MyEvents = () => {
       ) : (
         <ul>
           {myEvents.map((event) => (
-            <EventCard event={event} key={event._id} id={event._id}/>
+            <li key={event._id} >
+              <EventCard event={event} id={event._id} />
+              <button onClick={() => {handleDelete(event._id)}}>Delete</button>
+           </li>
           ))}
         </ul>
       )}

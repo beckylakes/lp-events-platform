@@ -802,7 +802,7 @@ describe("DELETE /api/events/:event_id", () => {
       });
   });
 
-  test("should respond with 204 status when user is deleted (no return)", () => {
+  test("should respond with 204 status when event is deleted (no return)", () => {
     return request(app)
       .delete(`/api/events/${validEventId}`)
       .set("Authorization", token)

@@ -1,35 +1,49 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
-import { getEventById } from "../api/api"; 
+import { getEventById } from "../api/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
-dayjs.extend(utc); // Extend dayjs with UTC plugin
+dayjs.extend(utc);
 
 const SingleEvent = () => {
   const { id } = useParams();
   const { auth } = useContext(AuthContext);
   const axiosPrivate = useAxiosPrivate();
-  const [event, setEvent] = useState({});
-  const [attending, setAttending] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getEventById(id).then((event) => {
-      console.log(`Successfully got ${event.name} event`, event);
-      setEvent(event);
+  const [event, setEvent] = useState({});
+  const [attending, setAttending] = useState(false);
 
-      if (!auth.user) {
-        setAttending(false);
-      } else if (event?.attendees?.includes(auth.user._id)) {
-        setAttending(true);
-      } else {
-        setAttending(false);
-      }
-    });
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    getEventById(id)
+      .then((event) => {
+        setEvent(event);
+
+        if (!auth.user) {
+          setAttending(false);
+        } else if (event?.attendees?.includes(auth.user._id)) {
+          setAttending(true);
+        } else {
+          setAttending(false);
+        }
+      })
+      .catch((err) => {
+        setError(true);
+        setErrorMessage(err.response.data.msg);
+        navigate("/error", {
+          state: {
+            error: true,
+            errorMessage: err.response.data.msg,
+            errorCode: err.response.status,
+          },
+        });
+      });
   }, [id]);
 
   const handleAttend = async () => {
@@ -55,18 +69,32 @@ const SingleEvent = () => {
       }
 
       setAttending(true);
-      console.log("Event added to attending list:", result);
+      setError(false);
     } catch (err) {
-      setError(err.response.data.msg);
+      setError(true);
+      setErrorMessage(err.response.data.msg);
+      navigate("/error", {
+        state: {
+          error: true,
+          errorMessage: err.response.data.msg,
+          errorCode: err.response.status,
+        },
+      });
     }
   };
 
-  // Generate Google Calendar URL
   const generateGoogleCalendarLink = (event) => {
-    const startDate = dayjs(`${event.date}T${event.startTime}`).utc().format("YYYYMMDDTHHmmss[Z]");
+    const startDate = dayjs(`${event.date}T${event.startTime}`)
+      .utc()
+      .format("YYYYMMDDTHHmmss[Z]");
     const endDate = event.endTime
-      ? dayjs(`${event.date}T${event.endTime}`).utc().format("YYYYMMDDTHHmmss[Z]")
-      : dayjs(`${event.date}T${event.startTime}`).add(2, "hours").utc().format("YYYYMMDDTHHmmss[Z]"); // Default to 2 hours if no end time
+      ? dayjs(`${event.date}T${event.endTime}`)
+          .utc()
+          .format("YYYYMMDDTHHmmss[Z]")
+      : dayjs(`${event.date}T${event.startTime}`)
+          .add(2, "hours")
+          .utc()
+          .format("YYYYMMDDTHHmmss[Z]");
 
     const details = {
       text: event.name,
@@ -84,11 +112,19 @@ const SingleEvent = () => {
 
   const eventPrice = event.price !== 0 ? `£${event.price}` : "Free";
   const eventDate = new Date(event.date).toDateString();
+  const eventImage =
+    event && event.images && event.images.length > 0
+      ? event.images[0]
+      : "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
-  return event && event.images !== undefined ? (
+  return event ? (
     <div>
       <h1>{event.name}</h1>
-      <img src={event.images[0]} alt={event.name} style={{ width: "100%", height: "auto" }} />
+      <img
+        src={eventImage}
+        alt={event.name}
+        style={{ width: "100%", height: "auto" }}
+      />
       <p>{eventDate}</p>
       <p>{event.location}</p>
       <p>{eventPrice}</p>

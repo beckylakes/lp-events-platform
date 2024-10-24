@@ -72,20 +72,6 @@ export const getEventById = (id) => {
   });
 };
 
-export const attendEvent = (userId, eventId) => {
-  if (eventId.length < 24) {
-    return api
-      .post(`users/${userId}/ticketmaster/attend`, { eventId })
-      .then((data) => {
-        return data;
-      });
-  }
-
-  return api.post(`users/${userId}/attend`, { eventId }).then((data) => {
-    return data;
-  });
-};
-
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -94,10 +80,7 @@ function getCookie(name) {
 
 export const getUserById = (user_id) => {
   return api
-    .get(`users/${user_id}`, {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${getCookie("jwt")}` },
-    })
+    .get(`users/${user_id}`)
     .then(({ data }) => {
       return data.user;
     });
