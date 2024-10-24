@@ -44,8 +44,9 @@ const SingleEvent = () => {
           },
         });
       });
-  }, [id]);
+  }, [id, auth.user, navigate]);
 
+  // Handle attending an event
   const handleAttend = async () => {
     if (!auth?.user) {
       alert("Please login in to attend an event");
@@ -70,6 +71,26 @@ const SingleEvent = () => {
 
       setAttending(true);
       setError(false);
+    } catch (err) {
+      setError(true);
+      setErrorMessage(err.response.data.msg);
+      navigate("/error", {
+        state: {
+          error: true,
+          errorMessage: err.response.data.msg,
+          errorCode: err.response.status,
+        },
+      });
+    }
+  };
+
+  const handleStopAttending = async () => {
+    const event_id = event._id;
+    const user_id = auth.user._id;
+
+    try {event_id
+      await axiosPrivate.post(`users/${user_id}/unattend`, { event_id });
+      setAttending(false);
     } catch (err) {
       setError(true);
       setErrorMessage(err.response.data.msg);
@@ -130,17 +151,20 @@ const SingleEvent = () => {
       <p>{eventPrice}</p>
       <br />
       <p>{event.info}</p>
-      <button disabled={attending} onClick={handleAttend}>
-        {attending ? "You are attending this event" : "Attend this event"}
-      </button>
-      {attending && (
-        <a
-          href={generateGoogleCalendarLink(event)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <button>Add to Google Calendar</button>
-        </a>
+      
+      {!attending ? (
+        <button onClick={handleAttend}>Attend this event</button>
+      ) : (
+        <>
+          <button onClick={handleStopAttending}>Stop Attending</button>
+          <a
+            href={generateGoogleCalendarLink(event)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button>Add to Google Calendar</button>
+          </a>
+        </>
       )}
     </div>
   ) : (

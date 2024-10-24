@@ -433,6 +433,70 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   });
 });
 
+describe('POST /api/users/:user_id/unattend', () => {
+  test('should respond with a 401 status if Authorization token is invalid', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', 'invalidToken')
+      .send({ event_id: validEventId })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Unauthorised access');
+      });
+  });
+  
+  test('should respond with a 400 status if user id is invalid', () => {
+    return request(app)
+      .post('/api/users/invalidUserId/unattend')
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Bad request');
+      });
+  });
+
+  test('should respond with a 400 status if event id is invalid', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: 'invalidEventId123' })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Bad request');
+      });
+  });
+
+  test('should respond with 404 status if the user is not found (non-existent id)', () => {
+    return request(app)
+      .post(`/api/users/66feec40084c536f65f2e987/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('User not found');
+      });
+  });
+
+  test('should respond with a 200 status and message when user successfully unattends the event', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(200)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('You have stopped attending this event');
+      });
+  });
+
+});
+
+
 describe("GET /api/events", () => {
   test("should respond with an array of expected length", () => {
     return request(app)

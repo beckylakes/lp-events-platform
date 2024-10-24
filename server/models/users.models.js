@@ -127,6 +127,24 @@ async function updateUserEvents(userId, updateData) {
   return User.findByIdAndUpdate(userId, updateData);
 }
 
+function updateUserAttending(user_id, event_id) {
+  if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "Bad request",
+    });
+  }
+
+  return User.findByIdAndUpdate(user_id, {$pull: {attendingEvents: event_id}}).then((result) => {
+    if(result === null){
+      return Promise.reject({
+        statusCode: 404,
+        msg: "User not found",
+      });
+    }
+  })
+}
+
 module.exports = {
   selectAllUsers,
   selectUserById,
@@ -136,5 +154,6 @@ module.exports = {
   findUser,
   findUserByRefreshToken,
   findUsersByEvent,
-  updateUserEvents
+  updateUserEvents,
+  updateUserAttending
 };

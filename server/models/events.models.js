@@ -145,6 +145,16 @@ function findTMEventById(ticketmasterId, event) {
   });
 }
 
+function updateEventAttendees(user_id, event_id) {
+  if (!mongoose.Types.ObjectId.isValid(event_id)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "Bad request",
+    });
+  }
+  return Event.findByIdAndUpdate(event_id, {$pull: {attendees: user_id}})
+}
+
 module.exports = {
   selectAllEvents,
   selectEventById,
@@ -154,4 +164,5 @@ module.exports = {
   selectTMEventById,
   findTMEventById,
   insertTMEvent,
+  updateEventAttendees
 };
