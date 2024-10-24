@@ -11,6 +11,7 @@ const EventCard = ({ event, id }) => {
     date,
     _embedded,
     priceRanges,
+    attendees
   } = event;
 
   const imageUrl =
@@ -21,11 +22,10 @@ const EventCard = ({ event, id }) => {
       : "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
   const eventStartTime = date ? date : dates?.start?.localDate;
-
   const eventLocation = location ? location : _embedded?.venues?.[0]?.name;
-
   const eventPrice = price !== undefined ? price : priceRanges?.[0]?.min;
-console.log(event)
+console.log(attendees)
+
   return (
     <>
       <Link to={`/events/${id}`}>
@@ -43,6 +43,7 @@ console.log(event)
           ? `£${eventPrice}`
           : "Free"}
       </p>
+      <p>{attendees}</p>
 </>
   );
 };

@@ -46,7 +46,6 @@ const SingleEvent = () => {
       });
   }, [id, auth.user, navigate]);
 
-  // Handle attending an event
   const handleAttend = async () => {
     if (!auth?.user) {
       alert("Please login in to attend an event");
@@ -151,7 +150,8 @@ const SingleEvent = () => {
       <p>{eventPrice}</p>
       <br />
       <p>{event.info}</p>
-      
+      {/* Here, I want to say which users are going to the event! */}
+      {/* <p>{event.attendees.length}</p> */}
       {!attending ? (
         <button onClick={handleAttend}>Attend this event</button>
       ) : (
