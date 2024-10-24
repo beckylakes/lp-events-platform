@@ -44,20 +44,16 @@ const SignUp = () => {
 
   useEffect(() => {
     const isValidEmail = emailRegex.test(email);
-    console.log(isValidEmail);
     setValidEmail(isValidEmail);
   }, [email]);
 
   useEffect(() => {
     const isValidUsername = userRegex.test(username);
-    console.log(isValidUsername);
     setValidUsername(isValidUsername);
   }, [username]);
 
   useEffect(() => {
     const isValidPassword = passwordRegex.test(password);
-    console.log(isValidPassword);
-    console.log(password);
     setValidPassword(isValidPassword);
     const isMatching = password === matchPassword;
     setValidMatch(isMatching);
@@ -80,8 +76,6 @@ const SignUp = () => {
 
     postUser(username, email, password)
       .then(({ user, msg }) => {
-        // New user created
-        console.log(msg);
         navigate("/login");
         setSuccess(true);
         setEmail("");
@@ -90,8 +84,6 @@ const SignUp = () => {
         setMatchPassword("");
       })
       .catch((err) => {
-        //Sorry! That email is already taken
-        console.log(err.response.data.msg);
         setErrorMessage(err.response.data.msg);
         errRef.current.focus();
       });

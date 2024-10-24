@@ -9,18 +9,19 @@ const EventCard = ({ event, id }) => {
     location,
     price,
     dates,
+    date,
     _embedded,
     priceRanges,
   } = event;
 
   const imageUrl =
-    images && images.length > 0
+    images && images.length > 0 && images[0] !== ''
       ? typeof images[0] === "string"
         ? images[0]
         : images[0]?.url
       : "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
-  const eventStartTime = startTime ? startTime : dates?.start?.localDate;
+  const eventStartTime = date ? date : dates?.start?.localDate;
 
   const eventLocation = location ? location : _embedded?.venues?.[0]?.name;
 

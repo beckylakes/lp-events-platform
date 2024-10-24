@@ -21,7 +21,7 @@ module.exports = [
       createdBy: null,
       price: 100,
       tags: ["charity", "ball", "formal", "fundraiser"],
-      images: [],
+      images: ["https://images.pexels.com/photos/14940457/pexels-photo-14940457.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
     },
     {
       name: "Free Coffee & Pastries Lunch",
@@ -33,7 +33,7 @@ module.exports = [
       createdBy: null,
       price: 0,
       tags: ["coffee", "meetup", "community"],
-      images: [],
+      images: ["https://images.pexels.com/photos/6314918/pexels-photo-6314918.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
     },
     {
       name: "Christmas Party",
@@ -45,7 +45,7 @@ module.exports = [
       createdBy: null,
       price: 20,
       tags: ["christmas", "party", "holiday", "community"],
-      images: [],
+      images: ["https://images.pexels.com/photos/3394229/pexels-photo-3394229.jpeg"],
     }
   ];
   
