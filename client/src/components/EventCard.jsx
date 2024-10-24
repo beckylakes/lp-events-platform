@@ -5,7 +5,6 @@ const EventCard = ({ event, id }) => {
     name,
     info,
     images,
-    startTime,
     location,
     price,
     dates,

@@ -5,14 +5,14 @@ import {
   getUserById,
   updateUserRole,
 } from "../api/api";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const UserPage = () => {
   const { user_id } = useParams();
-  const axiosPrivate = useAxiosPrivate(); 
-  
+  const axiosPrivate = useAxiosPrivate();
+
   const [user, setUser] = useState(null);
   const [attendingEvents, setAttendingEvents] = useState([]);
   const [loadingRoleChange, setLoadingRoleChange] = useState(false);
@@ -48,10 +48,9 @@ const UserPage = () => {
     );
 
     try {
-      const updatedUser = await axiosPrivate.patch(
-        `users/${user_id}`,
-        { roles: filteredRoles }
-      );
+      const updatedUser = await axiosPrivate.patch(`users/${user_id}`, {
+        roles: filteredRoles,
+      });
 
       setUser(updatedUser.data);
       setLoadingRoleChange(false);
@@ -85,9 +84,7 @@ const UserPage = () => {
       <ul>
         {attendingEvents.length > 0 ? (
           attendingEvents.map((event) => (
-            <Link to={`/events/${event._id}`} key={event._id}>
-              <EventCard event={event} />
-            </Link>
+            <EventCard event={event} key={event._id} id={event._id} />
           ))
         ) : (
           <p>No events yet</p>
