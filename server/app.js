@@ -1,11 +1,11 @@
-require("dotenv").config({})
+require("dotenv").config({});
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const connectDB = require("./database/connection");
-const verifyJWT = require("./middleware/verifyJWT")
-const cookieParser = require("cookie-parser")
-const ROLES_LIST = require("./config/roles-list.js")
+const verifyJWT = require("./middleware/verifyJWT");
+const cookieParser = require("cookie-parser");
+const ROLES_LIST = require("./config/roles-list.js");
 const verifyRoles = require("./middleware/verifyRoles.js");
 const {
   getUsers,
@@ -18,7 +18,7 @@ const {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
-  getUserEvents
+  getUserEvents,
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -27,7 +27,7 @@ const {
   postEvent,
   deleteEventByID,
   getTMEvents,
-  getTMEventById
+  getTMEventById,
 } = require("./controllers/events.controllers.js");
 
 const corsOptions = {
@@ -38,25 +38,21 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 connectDB();
 
-app.get("/", (req, res, next) => {
-  return res.status(200).send({ hello: "world!" });
-});
-
 app.post("/api/users/login", postLogin); // tested
-app.post("/api/users", postUser);  // tested
+app.post("/api/users", postUser); // tested
 app.post("/api/users/refresh", postRefreshToken);
 app.post("/api/users/logout", postLogout); // cannot test
 
 app.get("/api/users", getUsers); // tested
 app.get("/api/users/:user_id", getUserById); // tested
 app.get("/api/events", getEvents); // tested
-app.get("/api/ticketmaster/events", getTMEvents) // tested
+app.get("/api/ticketmaster/events", getTMEvents); // tested
 app.get("/api/events/:event_id", getEventById); // tested
-app.get("/api/ticketmaster/events/:event_id", getTMEventById) // tested
+app.get("/api/ticketmaster/events/:event_id", getTMEventById); // tested
 
 app.get("/api/user/:user_id/myevents", verifyJWT, verifyRoles(ROLES_LIST.Organiser), getUserEvents) // tested
 
