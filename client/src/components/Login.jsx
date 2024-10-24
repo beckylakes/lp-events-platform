@@ -29,19 +29,13 @@ const Login = () => {
     e.preventDefault();
     loginUser(email, password)
       .then(({ msg, roles, user, accessToken }) => {
-        console.log(`Logged in successfully as ${user.username}`, user);
         setAuth({ user, password, roles, accessToken });
         setEmail("");
         setPassword("");
         navigate(from, { replace: true });
       })
       .catch((err) => {
-        console.log(err);
-        if (!err?.response) {
-          setErrorMessage("No Server Response");
-        } else {
-          setErrorMessage(err.response.data.msg);
-        }
+        setErrorMessage(err.response.data.msg);
         errRef.current.focus();
       });
   };

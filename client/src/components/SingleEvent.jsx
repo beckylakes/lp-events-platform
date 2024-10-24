@@ -3,14 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
 import { getEventById } from "../api/api"; 
 import dayjs from "dayjs";
-import useAxiosPrivate from "../hooks/useAxiosPrivate"; // Use axiosPrivate
+import utc from "dayjs/plugin/utc";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+
+dayjs.extend(utc); // Extend dayjs with UTC plugin
 
 const SingleEvent = () => {
   const { id } = useParams();
   const { auth } = useContext(AuthContext);
-  const axiosPrivate = useAxiosPrivate(); // Hook for private requests
+  const axiosPrivate = useAxiosPrivate();
   const [event, setEvent] = useState({});
   const [attending, setAttending] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +39,7 @@ const SingleEvent = () => {
       return;
     }
 
-    const eventId = event._id
+    const eventId = event._id;
     const userId = auth.user._id;
 
     try {
@@ -53,33 +57,24 @@ const SingleEvent = () => {
       setAttending(true);
       console.log("Event added to attending list:", result);
     } catch (err) {
-      console.log(
-        err.response?.status === 401
-          ? "Unauthorized, please login."
-          : err.message
-      );
+      setError(err.response.data.msg);
     }
   };
 
   // Generate Google Calendar URL
   const generateGoogleCalendarLink = (event) => {
-    const startDate = dayjs(event.date).format("YYYYMMDD");
-    const startTime = event.startTime
-      ? dayjs(event.startTime, "HH:mm").format("HHmm")
-      : "0000";
-    const endTime = event.endTime
-      ? dayjs(event.endTime, "HH:mm").format("HHmm")
-      : "2359";
-    const endDate = dayjs(event.date).format("YYYYMMDD");
+    const startDate = dayjs(`${event.date}T${event.startTime}`).utc().format("YYYYMMDDTHHmmss[Z]");
+    const endDate = event.endTime
+      ? dayjs(`${event.date}T${event.endTime}`).utc().format("YYYYMMDDTHHmmss[Z]")
+      : dayjs(`${event.date}T${event.startTime}`).add(2, "hours").utc().format("YYYYMMDDTHHmmss[Z]"); // Default to 2 hours if no end time
 
     const details = {
       text: event.name,
-      dates: `${startDate}T${startTime}/${endDate}T${endTime}`,
-      details: event.info || "Event details",
+      dates: `${startDate}/${endDate}`,
+      details: event.info || "Event details not provided",
       location: event.location || "Location not provided",
     };
 
-    // Return the Google Calendar URL with the event details as query params
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
       details.text
     )}&dates=${details.dates}&details=${encodeURIComponent(
@@ -87,9 +82,17 @@ const SingleEvent = () => {
     )}&location=${encodeURIComponent(details.location)}&sf=true&output=xml`;
   };
 
-  return event ? (
+  const eventPrice = event.price !== 0 ? `£${event.price}` : "Free";
+  const eventDate = new Date(event.date).toDateString();
+
+  return event && event.images !== undefined ? (
     <div>
       <h1>{event.name}</h1>
+      <img src={event.images[0]} alt={event.name} style={{ width: "100%", height: "auto" }} />
+      <p>{eventDate}</p>
+      <p>{event.location}</p>
+      <p>{eventPrice}</p>
+      <br />
       <p>{event.info}</p>
       <button disabled={attending} onClick={handleAttend}>
         {attending ? "You are attending this event" : "Attend this event"}

@@ -111,56 +111,6 @@ describe("GET /api/users/:user_id", () => {
   });
 });
 
-describe("GET /api/users/:user_id/myevents", () => {
-  test("should return 401 status if Authorization token is invalid", () => {
-    return request(app)
-      .get(`/api/user/${validUserId}/myevents`)
-      .set("Authorization", "invalidToken")
-      .expect(401)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Unauthorised access");
-      });
-  });
-
-  test("should return 400 status if user id token is invalid", () => {
-    return request(app)
-      .get(`/api/user/invalid-id/myevents`)
-      .set("Authorization", token)
-      .expect(400)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Bad request");
-      });
-  });
-
-  test("should return 404 status if user id is non existent", () => {
-    return request(app)
-      .get(`/api/user/66feec40084c536f65f2e987/myevents`)
-      .set("Authorization", token)
-      .expect(404)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("User not found");
-      });
-  });
-
-  test("should return 200 status and array of events created by user", () => {
-    return request(app)
-      .get(`/api/user/${validUserId}/myevents`)
-      .set("Authorization", token)
-      .expect(200)
-      .then((response) => {
-        const { events } = response.body
-        expect(Array.isArray(events)).toBe(true)
-        expect(events.length).toBe(2)
-        expect(events[0].name).toBe("Community Yoga")
-        expect(events[1].name).toBe("Free Coffee & Pastries Lunch")
-      });
-  });
-
-});
-
 describe("POST /api/users", () => {
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidUserData = {

@@ -145,14 +145,6 @@ function findTMEventById(ticketmasterId, event) {
   });
 }
 
-function findEventByUser(user_id) {
-  return selectUserById(user_id).then((user) => {
-    return Event.find({ createdBy: user._id }).then((result) => {
-      return result
-    });
-  });
-}
-
 module.exports = {
   selectAllEvents,
   selectEventById,
@@ -162,5 +154,4 @@ module.exports = {
   selectTMEventById,
   findTMEventById,
   insertTMEvent,
-  findEventByUser,
 };

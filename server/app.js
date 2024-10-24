@@ -18,7 +18,6 @@ const {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
-  getUserEvents,
 } = require("./controllers/users.controllers.js");
 const {
   getEvents,
@@ -53,8 +52,6 @@ app.get("/api/events", getEvents); // tested
 app.get("/api/ticketmaster/events", getTMEvents); // tested
 app.get("/api/events/:event_id", getEventById); // tested
 app.get("/api/ticketmaster/events/:event_id", getTMEventById); // tested
-
-// app.get("/api/user/:user_id/myevents", verifyJWT, verifyRoles(ROLES_LIST.Organiser), getUserEvents) // tested
 
 app.patch("/api/users/:user_id", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), patchUser); // tested
 app.post("/api/users/:user_id/attend", verifyJWT, verifyRoles(ROLES_LIST.Organiser, ROLES_LIST.User), postAttendEvent) // tested

@@ -267,15 +267,6 @@ function postAttendTMEvent(req, res, next) {
     });
 }
 
-function getUserEvents(req, res, next) {
-  const { user_id } = req.params;
-  return findEventByUser(user_id)
-    .then((events) => {
-      res.status(200).send({ events });
-    })
-    .catch((err) => next(err));
-}
-
 module.exports = {
   getUsers,
   getUserById,
@@ -287,5 +278,4 @@ module.exports = {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
-  getUserEvents,
 };

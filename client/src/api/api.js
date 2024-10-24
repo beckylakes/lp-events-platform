@@ -60,15 +60,6 @@ export const loginUser = (email, password) => {
     });
 };
 
-export const logoutUser = () => {
-  return api
-    .post("users/logout", {}, { withCredentials: true })
-    .then((data) => {
-      console.log(data);
-      return data;
-    });
-};
-
 export const getEventById = (id) => {
   if (id.length < 24) {
     return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
