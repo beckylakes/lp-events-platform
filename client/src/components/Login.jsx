@@ -41,7 +41,7 @@ const Login = () => {
   };
 
   return (
-    <section>
+    <section className="login-form">
       <p
         ref={errRef}
         className={errorMessage ? "errmsg" : "offscreen"}

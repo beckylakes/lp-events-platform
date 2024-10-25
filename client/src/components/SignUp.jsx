@@ -91,16 +91,15 @@ const SignUp = () => {
 
   return (
     <>
-      {" "}
       {success ? (
-        <section>
+        <section className="signin-form">
           <h1>Welcome {username}! Would you like to login?</h1>
           <p>
             <Link to="/login"></Link>
           </p>
         </section>
       ) : (
-        <section>
+        <section className="signin-form">
           <p
             ref={errRef}
             className={errorMessage ? "errorMessage" : "offscreen"}

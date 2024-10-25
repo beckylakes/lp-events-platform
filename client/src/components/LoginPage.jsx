@@ -3,7 +3,7 @@ import Logo from "./Logo";
 
 const LoginPage = () => {
   return (
-    <div>
+    <div className="login-page-container">
       <Logo />
       <Login />
     </div>

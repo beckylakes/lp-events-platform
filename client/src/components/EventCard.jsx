@@ -26,7 +26,7 @@ const EventCard = ({ event, id }) => {
   const eventPrice = price !== undefined ? price : priceRanges?.[0]?.min;
 
   return (
-    <>
+    <div className="event-card">
       <Link to={`/events/${id}`}>
         <h4>{name}</h4>
         <img
@@ -42,7 +42,7 @@ const EventCard = ({ event, id }) => {
           ? `£${eventPrice}`
           : "Free"}
       </p>
-</>
+</div>
   );
 };
 

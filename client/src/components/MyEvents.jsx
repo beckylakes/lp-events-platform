@@ -65,7 +65,7 @@ const MyEvents = () => {
   }
 
   return (
-    <div>
+    <div className="my-events-page">
       <h2>My Events</h2>
       {myEvents && myEvents.length === 0 ? (
         <>
@@ -76,12 +76,12 @@ const MyEvents = () => {
           </p>
         </>
       ) : (
-        <ul>
+        <ul className="my-events-container">
           {myEvents.map((event) => (
-            <li key={event._id} >
-              <EventCard event={event} id={event._id} />
+            <div key={event._id} >
+              <EventCard event={event} id={event._id} key={event._id}/>
               <button onClick={() => {handleDelete(event._id)}}>Delete</button>
-           </li>
+           </div>
           ))}
         </ul>
       )}

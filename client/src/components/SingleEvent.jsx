@@ -17,7 +17,6 @@ const SingleEvent = () => {
   const [event, setEvent] = useState({});
   const [user, setUser] = useState({});
   const [attending, setAttending] = useState(false);
-
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -43,9 +42,7 @@ const SingleEvent = () => {
   useEffect(() => {
     if (event.createdBy) {
       getUserById(event.createdBy)
-        .then((response) => {
-          setUser(response);
-        })
+        .then((response) => setUser(response))
         .catch((err) => {
           setError(true);
           setErrorMessage(err.response.data.msg);
@@ -65,15 +62,13 @@ const SingleEvent = () => {
       alert("Please login to attend an event");
       navigate("/login");
     }
-
     const { _id: eventId } = event;
     const { _id: userId } = auth.user;
 
     try {
-      const endpoint =
-        eventId.length < 24
-          ? `users/${userId}/ticketmaster/attend`
-          : `users/${userId}/attend`;
+      const endpoint = eventId.length < 24
+        ? `users/${userId}/ticketmaster/attend`
+        : `users/${userId}/attend`;
       await axiosPrivate.post(endpoint, { eventId });
       setAttending(true);
     } catch (err) {
@@ -133,18 +128,14 @@ const SingleEvent = () => {
     "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
   return event ? (
-    <div>
-      <h1>{event.name}</h1>
-      <img
-        src={eventImage}
-        alt={event.name}
-        style={{ width: "100%", height: "auto" }}
-      />
+    <div className="event-container">
+      <h1 className="event-title">{event.name}</h1>
+      <img className="event-image" src={eventImage} alt={event.name} />
 
       {event.createdBy ? (
-        <p>
+        <p className="event-creator">
           By <Link to={`/user/${event.createdBy}`}>{user.username}</Link>
-          <img src={user.avatar} id="avatar" />
+          <img className="user-avatar" src={user.avatar} alt="User Avatar" />
         </p>
       ) : (
         <p>
@@ -154,26 +145,27 @@ const SingleEvent = () => {
         </p>
       )}
 
-      <p>{eventDate}</p>
-      <p>{event.location}</p>
-      <p>{eventPrice}</p>
-      <br />
-      <p>{event.info}</p>
+      <p className="event-date">{eventDate}</p>
+      <p className="event-location">{event.location}</p>
+      <p className="event-price">{eventPrice}</p>
+      <p className="event-info">{event.info}</p>
 
-      {!attending ? (
-        <button onClick={handleAttend}>Attend this event</button>
-      ) : (
-        <>
-          <button onClick={handleStopAttending}>Stop Attending</button>
-          <a
-            href={generateGoogleCalendarLink(event)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <button>Add to Google Calendar</button>
-          </a>
-        </>
-      )}
+      <div className="event-actions">
+        {!attending ? (
+          <button onClick={handleAttend}>Attend this event</button>
+        ) : (
+          <>
+            <button onClick={handleStopAttending}>Stop Attending</button>
+            <a
+              href={generateGoogleCalendarLink(event)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button>Add to Google Calendar</button>
+            </a>
+          </>
+        )}
+      </div>
     </div>
   ) : (
     <p>Loading event details...</p>

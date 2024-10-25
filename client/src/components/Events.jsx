@@ -34,7 +34,7 @@ const Events = () => {
 
   return (
     <>
-      <ul>
+      <ul className="event-card-container">
         {events.map((event) => {
           const id = event._id || event.id;
           return <EventCard event={event} id={id} key={id} />;

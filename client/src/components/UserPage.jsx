@@ -102,7 +102,7 @@ const UserPage = () => {
   }
 
   return (
-    <>
+    <div className="user-details">
       <h1>{user.username}'s page</h1>
       <img src={user.avatar}/>
       <p>Since: {new Date(user.createdAt).toDateString()}</p>
@@ -124,7 +124,7 @@ const UserPage = () => {
 
       <br />
       <h3>Events {user.username} is attending:</h3>
-      <ul>
+      <ul className="event-card-container">
         {attendingEvents.length > 0 ? (
           attendingEvents.map((event) => (
             <EventCard event={event} key={event._id} id={event._id} />
@@ -135,7 +135,7 @@ const UserPage = () => {
           </p>
         )}
       </ul>
-    </>
+    </div>
   );
 };
 
