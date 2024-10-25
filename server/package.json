@@ -5,7 +5,8 @@
   "scripts": {
     "test": "jest",
     "dev": "nodemon listen.js",
-    "start": "node listen.js"
+    "start": "node listen.js",
+    "seed": "node ./database/seed/run-seed.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

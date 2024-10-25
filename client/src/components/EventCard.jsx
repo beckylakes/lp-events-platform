@@ -39,7 +39,7 @@ const EventCard = ({ event, id }) => {
       <p>{eventLocation || "N/A"}</p>
       <p>
         {eventPrice !== undefined && eventPrice !== 0
-          ? `£${eventPrice}`
+          ? `From £${eventPrice}`
           : "Free"}
       </p>
 </div>
