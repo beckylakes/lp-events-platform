@@ -31,7 +31,7 @@ const {
 } = require("./controllers/events.controllers.js");
 
 app.use(cors({
-  origin: "https://671bf5f69cfbdfbe92a1957a--eventure-lp.netlify.app",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 
