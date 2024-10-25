@@ -72,12 +72,6 @@ export const getEventById = (id) => {
   });
 };
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
-
 export const getUserById = (user_id) => {
   return api
     .get(`users/${user_id}`)
