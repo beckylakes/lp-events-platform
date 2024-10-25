@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:9090/api/",
+  baseURL: "https://eventure-4z44.onrender.com/api/",
 });
 
 export const axiosPrivate = axios.create({
-  baseURL: "http://localhost:9090/api/",
+  baseURL: "https://eventure-4z44.onrender.com/api/",
   headers: {'Content-Type': 'application/json'},
   withCredentials: true,
 })
