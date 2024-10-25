@@ -3,7 +3,7 @@ import NavigationBar from './NavigationBar';
 
 const Header = () => {
   return (
-    <header>
+    <header className='header'>
       <Logo />
       <NavigationBar />
     </header>

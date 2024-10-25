@@ -16,7 +16,7 @@ const NavigationBar = () => {
     : auth.user?.roles === 200;
 
   return (
-    <nav style={styles.nav}>
+    <nav >
       <SearchBar />
       {auth?.user ? (
         <>
@@ -32,14 +32,16 @@ const NavigationBar = () => {
           <button onClick={() => navigate(`/user/${auth.user._id}`)}>
             My Account
           </button>
-          <Link to={`/user/${auth.user._id}`}>
-            <img
-              id="avatar"
-              src={auth.user.avatar}
-              alt={`${auth.user.username}'s avatar`}
-            />
-            <p>Welcome back, {auth.user.username}</p>
-          </Link>
+          <div className="account-button">
+            <Link to={`/user/${auth.user._id}`}>
+              <img
+                id="avatar"
+                src={auth.user.avatar}
+                alt={`${auth.user.username}'s avatar`}
+              />
+              <p>Welcome back, {auth.user.username}</p>
+            </Link>
+          </div>
           <LogoutButton />
         </>
       ) : (
@@ -51,13 +53,6 @@ const NavigationBar = () => {
       )}
     </nav>
   );
-};
-
-const styles = {
-  nav: {
-    display: "flex",
-    alignItems: "center",
-  },
 };
 
 export default NavigationBar;

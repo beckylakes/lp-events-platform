@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
   return (
     <main className="App">
       {!noHeaderPaths.includes(location.pathname) && <Header />}
-      <section>
+      <section className="event-page">
         <Outlet />
       </section>
     </main>

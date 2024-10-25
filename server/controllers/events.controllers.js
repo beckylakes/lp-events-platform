@@ -118,7 +118,7 @@ function postEvent(req, res, next) {
 
 function getTMEvents(req, res, next) {
   return fetch(
-    `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&apikey=${API_KEY}`
+    `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&size=200&apikey=${API_KEY}`
   )
     .then((response) => {
       const data = response.json();

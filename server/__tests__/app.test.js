@@ -7,7 +7,6 @@ const seed = require("../database/seed/seed.js");
 const testData = require("../database/data/test-data/index.js");
 const User = require("../schemas/userSchema.js");
 const Event = require("../schemas/eventSchema.js");
-const { values } = require("../database/data/test-data/users.js");
 
 let token;
 let validUserId, validEventId, dateCreated;
