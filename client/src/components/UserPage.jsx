@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEventById, getUserById } from "../api/api";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import useAuth from "../hooks/useAuth"; // Import your useAuth hook
@@ -118,7 +118,7 @@ const UserPage = () => {
             <EventCard event={event} key={event._id} id={event._id} />
           ))
         ) : (
-          <p>No events yet</p>
+          <p>No events yet - want to <Link>see more events?</Link></p>
         )}
       </ul>
     </>

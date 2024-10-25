@@ -9,16 +9,21 @@ import useAuth from "../hooks/useAuth";
 
 const NavigationBar = () => {
   const { auth } = useAuth();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <nav style={styles.nav}>
       <SearchBar />
-      <button onClick={() => navigate('/home')}>Home</button>
-      <button onClick={() => navigate('/create-event')}>Create event</button>
-      <button onClick={() => navigate('/myevents')}>My events</button>
       {auth?.user ? (
         <>
+          <button onClick={() => navigate("/home")}>Home</button>
+          <button onClick={() => navigate("/create-event")}>
+            Create event
+          </button>
+          <button onClick={() => navigate("/myevents")}>My events</button>
+          <button onClick={() => navigate(`/user/${auth.user._id}`)}>
+            My Account
+          </button>
           <Link to={`/user/${auth.user._id}`}>
             <img
               id="avatar"
@@ -31,6 +36,7 @@ const NavigationBar = () => {
         </>
       ) : (
         <>
+          <button onClick={() => navigate("/home")}>Home</button>
           <LoginButton />
           <SignUpButton />
         </>
