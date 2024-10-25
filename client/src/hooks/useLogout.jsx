@@ -8,7 +8,7 @@ const useLogout = () => {
     setAuth({});
     try {
       const response = await axios.post(
-        "http://localhost:9090/api/users/logout",
+        "https://eventure-4z44.onrender.com/api/users/logout",
         {},
         { withCredentials: true }
       );

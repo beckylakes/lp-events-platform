@@ -6,7 +6,7 @@ const useRefreshToken = () => {
     const { setAuth } = useAuth();
 
     const refresh = async () => {
-        const response = await axios.post('http://localhost:9090/api/users/refresh', {}, {
+        const response = await axios.post('https://eventure-4z44.onrender.com/api/users/refresh', {}, {
             withCredentials: true
         });
         setAuth(prev => {
