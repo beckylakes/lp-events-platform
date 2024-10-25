@@ -10,16 +10,22 @@ const NavigationBar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
+  const isOrganiser = auth.user?.roles?.Organiser === 200;
+
   return (
     <nav style={styles.nav}>
       <SearchBar />
       {auth?.user ? (
         <>
           <button onClick={() => navigate("/home")}>Home</button>
-          <button onClick={() => navigate("/myevents")}>My events</button>
-          <button onClick={() => navigate("/create-event")}>
-            Create event
-          </button>
+          {isOrganiser && (
+            <>
+              <button onClick={() => navigate("/myevents")}>My events</button>
+              <button onClick={() => navigate("/create-event")}>
+                Create event
+              </button>
+            </>
+          )}
           <button onClick={() => navigate(`/user/${auth.user._id}`)}>
             My Account
           </button>

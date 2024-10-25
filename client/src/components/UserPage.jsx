@@ -3,12 +3,12 @@ import { getEventById, getUserById } from "../api/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
-import useAuth from "../hooks/useAuth"; // Import your useAuth hook
+import useAuth from "../hooks/useAuth";
 
 const UserPage = () => {
   const { user_id } = useParams();
   const axiosPrivate = useAxiosPrivate();
-  const { auth } = useAuth(); // Use auth to get the current logged-in user info
+  const { auth } = useAuth();
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
@@ -85,6 +85,7 @@ const UserPage = () => {
   };
 
   const canEditRoles = auth?.user?._id === user?._id;
+  const isOrganiser = auth.user?.roles?.Organiser === 200;
 
   if (!user) {
     return <p>Loading...</p>;
@@ -105,7 +106,9 @@ const UserPage = () => {
               ? "Stop being an Event Organiser"
               : "Become an Event Organiser"}
           </button>
-          <button onClick={() => navigate("/myevents")}>My Events</button>
+          {isOrganiser && (
+            <button onClick={() => navigate("/myevents")}>My Events</button>
+          )}
         </>
       )}
 
