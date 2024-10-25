@@ -4,11 +4,13 @@ import useAuth from "./useAuth";
 
 const useRefreshToken = () => {
     const { setAuth } = useAuth();
-
+    console.log('in useRefreshToken')
     const refresh = async () => {
         const response = await axios.post('https://eventure-4z44.onrender.com/api/users/refresh', {}, {
             withCredentials: true
         });
+        console.log('in refresh')
+        console.log(response)
         setAuth(prev => {
             return {
                 ...prev,
