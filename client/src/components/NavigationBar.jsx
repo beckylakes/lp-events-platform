@@ -1,4 +1,3 @@
-import React, { useContext } from "react";
 import SearchBar from "./SearchBar";
 import LoginButton from "./LoginButton";
 import SignUpButton from "./SignUpButton";
@@ -17,10 +16,10 @@ const NavigationBar = () => {
       {auth?.user ? (
         <>
           <button onClick={() => navigate("/home")}>Home</button>
+          <button onClick={() => navigate("/myevents")}>My events</button>
           <button onClick={() => navigate("/create-event")}>
             Create event
           </button>
-          <button onClick={() => navigate("/myevents")}>My events</button>
           <button onClick={() => navigate(`/user/${auth.user._id}`)}>
             My Account
           </button>
@@ -30,7 +29,7 @@ const NavigationBar = () => {
               src={auth.user.avatar}
               alt={`${auth.user.username}'s avatar`}
             />
-            <p>Logged in as: {auth.user.username}</p>
+            <p>Welcome back, {auth.user.username}</p>
           </Link>
           <LogoutButton />
         </>

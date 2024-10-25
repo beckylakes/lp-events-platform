@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
-import { getEventById } from "../api/api";
+import { getEventById, getUserById } from "../api/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
@@ -15,89 +15,87 @@ const SingleEvent = () => {
   const navigate = useNavigate();
 
   const [event, setEvent] = useState({});
+  const [user, setUser] = useState({});
   const [attending, setAttending] = useState(false);
-
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     getEventById(id)
       .then((event) => {
         setEvent(event);
-
-        if (!auth.user) {
-          setAttending(false);
-        } else if (event?.attendees?.includes(auth.user._id)) {
-          setAttending(true);
-        } else {
-          setAttending(false);
-        }
+        setAttending(auth.user && event?.attendees?.includes(auth.user._id));
       })
       .catch((err) => {
-        setError(true);
-        setErrorMessage(err.response.data.msg);
         navigate("/error", {
           state: {
             error: true,
-            errorMessage: err.response.data.msg,
-            errorCode: err.response.status,
+            errorMessage:
+              err.response?.data?.msg || "Error fetching event details",
+            errorCode: err.response?.status || 500,
           },
         });
       });
   }, [id, auth.user, navigate]);
 
+  useEffect(() => {
+    if (event.createdBy) {
+      getUserById(event.createdBy)
+        .then((response) => {
+          setUser(response)
+        })
+        .catch((err) => {
+          navigate("/error", {
+            state: {
+              error: true,
+              errorMessage:
+                err.response?.data?.msg || "Error fetching event details",
+              errorCode: err.response?.status || 500,
+            },
+          });
+        });
+    }
+  }, [event]);
+
   const handleAttend = async () => {
     if (!auth?.user) {
-      alert("Please login in to attend an event");
+      alert("Please login to attend an event");
       navigate("/login");
       return;
     }
 
-    const eventId = event._id;
-    const userId = auth.user._id;
+    const { _id: eventId } = event;
+    const { _id: userId } = auth.user;
 
     try {
-      let result;
-
-      if (eventId.length < 24) {
-        result = await axiosPrivate.post(
-          `users/${userId}/ticketmaster/attend`,
-          { eventId }
-        );
-      } else {
-        result = await axiosPrivate.post(`users/${userId}/attend`, { eventId });
-      }
-
+      const endpoint =
+        eventId.length < 24
+          ? `users/${userId}/ticketmaster/attend`
+          : `users/${userId}/attend`;
+      await axiosPrivate.post(endpoint, { eventId });
       setAttending(true);
-      setError(false);
     } catch (err) {
-      setError(true);
-      setErrorMessage(err.response.data.msg);
       navigate("/error", {
         state: {
           error: true,
-          errorMessage: err.response.data.msg,
-          errorCode: err.response.status,
+          errorMessage: err.response?.data?.msg || "Error attending event",
+          errorCode: err.response?.status || 500,
         },
       });
     }
   };
 
   const handleStopAttending = async () => {
-    const event_id = event._id;
-    const user_id = auth.user._id;
-
-    try {event_id
-      await axiosPrivate.post(`users/${user_id}/unattend`, { event_id });
+    try {
+      await axiosPrivate.post(`users/${auth.user._id}/unattend`, {
+        event_id: event._id,
+      });
       setAttending(false);
     } catch (err) {
-      setError(true);
-      setErrorMessage(err.response.data.msg);
       navigate("/error", {
         state: {
           error: true,
-          errorMessage: err.response.data.msg,
-          errorCode: err.response.status,
+          errorMessage: err.response?.data?.msg || "Error stopping attendance",
+          errorCode: err.response?.status || 500,
         },
       });
     }
@@ -116,26 +114,20 @@ const SingleEvent = () => {
           .utc()
           .format("YYYYMMDDTHHmmss[Z]");
 
-    const details = {
-      text: event.name,
-      dates: `${startDate}/${endDate}`,
-      details: event.info || "Event details not provided",
-      location: event.location || "Location not provided",
-    };
-
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-      details.text
-    )}&dates=${details.dates}&details=${encodeURIComponent(
-      details.details
-    )}&location=${encodeURIComponent(details.location)}&sf=true&output=xml`;
+      event.name
+    )}&dates=${startDate}/${endDate}&details=${encodeURIComponent(
+      event.info || "Event details not provided"
+    )}&location=${encodeURIComponent(
+      event.location || "Location not provided"
+    )}&sf=true&output=xml`;
   };
 
   const eventPrice = event.price !== 0 ? `£${event.price}` : "Free";
   const eventDate = new Date(event.date).toDateString();
   const eventImage =
-    event && event.images && event.images.length > 0
-      ? event.images[0]
-      : "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+    event?.images?.[0] ||
+    "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
   return event ? (
     <div>
@@ -145,13 +137,23 @@ const SingleEvent = () => {
         alt={event.name}
         style={{ width: "100%", height: "auto" }}
       />
+
+      {event.createdBy ? (
+        <p>
+          By <Link to={`/user/${event.createdBy}`}>{user.username}</Link>
+        </p>
+      ) : (
+        <p>
+          <a href={event.url} target="_blank" rel="noopener noreferrer">Go to Ticketmaster</a>
+        </p>
+      )}
+
       <p>{eventDate}</p>
       <p>{event.location}</p>
       <p>{eventPrice}</p>
       <br />
       <p>{event.info}</p>
-      {/* Here, I want to say which users are going to the event! */}
-      {/* <p>{event.attendees.length}</p> */}
+
       {!attending ? (
         <button onClick={handleAttend}>Attend this event</button>
       ) : (

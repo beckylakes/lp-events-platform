@@ -24,7 +24,6 @@ const EventCard = ({ event, id }) => {
   const eventStartTime = date ? date : dates?.start?.localDate;
   const eventLocation = location ? location : _embedded?.venues?.[0]?.name;
   const eventPrice = price !== undefined ? price : priceRanges?.[0]?.min;
-console.log(attendees)
 
   return (
     <>
@@ -43,7 +42,6 @@ console.log(attendees)
           ? `£${eventPrice}`
           : "Free"}
       </p>
-      <p>{attendees}</p>
 </>
   );
 };

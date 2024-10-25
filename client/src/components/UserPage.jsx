@@ -68,11 +68,9 @@ const UserPage = () => {
       const updatedUser = await axiosPrivate.patch(`users/${user_id}`, {
         roles: filteredRoles,
       });
-      console.log(updatedUser.data.user);
       setUser(updatedUser.data.user);
       setLoadingRoleChange(false);
     } catch (err) {
-      console.log(err.response);
       setError(true);
       setErrorMessage(err.response.data.msg);
       setLoadingRoleChange(false);
@@ -86,8 +84,7 @@ const UserPage = () => {
     }
   };
 
-  const canEditRoles =
-    auth?.user?._id === user?._id
+  const canEditRoles = auth?.user?._id === user?._id;
 
   if (!user) {
     return <p>Loading...</p>;
@@ -97,19 +94,21 @@ const UserPage = () => {
     <>
       <h2>{user.username}'s page</h2>
       <p>Username: {user.username}</p>
-      <p>User since: {new Date(user.createdAt).toDateString()}</p>
+      <p>Since: {new Date(user.createdAt).toDateString()}</p>
 
       {canEditRoles && (
-        <button onClick={handleRoleChange} disabled={loadingRoleChange}>
-          {loadingRoleChange
-            ? "Updating..."
-            : user.roles?.Organiser === 200
-            ? "Stop being an Event Organiser"
-            : "Become an Event Organiser"}
-        </button>
+        <>
+          <button onClick={handleRoleChange} disabled={loadingRoleChange}>
+            {loadingRoleChange
+              ? "Updating..."
+              : user.roles?.Organiser === 200
+              ? "Stop being an Event Organiser"
+              : "Become an Event Organiser"}
+          </button>
+          <button onClick={() => navigate("/myevents")}>My Events</button>
+        </>
       )}
 
-      <button onClick={() => navigate("/myevents")}>My Events</button>
       <br />
       <p>Events I'm attending:</p>
       <ul>
@@ -118,7 +117,9 @@ const UserPage = () => {
             <EventCard event={event} key={event._id} id={event._id} />
           ))
         ) : (
-          <p>No events yet - want to <Link>see more events?</Link></p>
+          <p>
+            No events yet - want to <Link to={"/home"}>see more events?</Link>
+          </p>
         )}
       </ul>
     </>
