@@ -17,7 +17,9 @@ const SingleEvent = () => {
   const [event, setEvent] = useState({});
   const [user, setUser] = useState({});
   const [attending, setAttending] = useState(false);
+
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     getEventById(id)
@@ -26,12 +28,13 @@ const SingleEvent = () => {
         setAttending(auth.user && event?.attendees?.includes(auth.user._id));
       })
       .catch((err) => {
+        setError(true);
+        setErrorMessage(err.response.data.msg);
         navigate("/error", {
           state: {
             error: true,
-            errorMessage:
-              err.response?.data?.msg || "Error fetching event details",
-            errorCode: err.response?.status || 500,
+            errorMessage: err.response.data.msg,
+            errorCode: err.response.status,
           },
         });
       });
@@ -41,15 +44,16 @@ const SingleEvent = () => {
     if (event.createdBy) {
       getUserById(event.createdBy)
         .then((response) => {
-          setUser(response)
+          setUser(response);
         })
         .catch((err) => {
+          setError(true);
+          setErrorMessage(err.response.data.msg);
           navigate("/error", {
             state: {
               error: true,
-              errorMessage:
-                err.response?.data?.msg || "Error fetching event details",
-              errorCode: err.response?.status || 500,
+              errorMessage: err.response.data.msg,
+              errorCode: err.response.status,
             },
           });
         });
@@ -60,7 +64,6 @@ const SingleEvent = () => {
     if (!auth?.user) {
       alert("Please login to attend an event");
       navigate("/login");
-      return;
     }
 
     const { _id: eventId } = event;
@@ -145,7 +148,9 @@ const SingleEvent = () => {
         </p>
       ) : (
         <p>
-          <a href={event.url} target="_blank" rel="noopener noreferrer">Go to Ticketmaster</a>
+          <a href={event.url} target="_blank" rel="noopener noreferrer">
+            Go to Ticketmaster
+          </a>
         </p>
       )}
 

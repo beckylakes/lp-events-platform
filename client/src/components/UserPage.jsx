@@ -45,7 +45,17 @@ const UserPage = () => {
         user.attendingEvents.map((eventId) => getEventById(eventId))
       ).then((events) => {
         setAttendingEvents(events);
-      });
+      }).catch((err) => {
+        setError(true)
+        setErrorMessage(err.response.data.msg)
+        navigate("/error", {
+          state: {
+            error: true,
+            errorMessage: err.response.data.msg,
+            errorCode: err.response.status,
+          },
+        });
+      })
     }
   }, [user]);
 

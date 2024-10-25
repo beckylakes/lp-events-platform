@@ -6,7 +6,7 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,6 +20,13 @@ const Events = () => {
         setError(true);
         setErrorMessage(err.response.data.msg)
         setLoading(false);
+        navigate("/error", {
+          state: {
+            error: true,
+            errorMessage: err.response.data.msg,
+            errorCode: err.response.status,
+          },
+        });
       });
   }, []);
 

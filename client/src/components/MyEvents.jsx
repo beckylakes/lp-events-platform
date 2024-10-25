@@ -12,6 +12,9 @@ const MyEvents = () => {
  
 
   const [myEvents, setMyEvents] = useState([]);
+
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,9 +30,8 @@ const MyEvents = () => {
         const events = await Promise.all(eventDetailsPromises);
 
         setMyEvents(events);
+        setLoading(false)
       } catch (error) {
-        console.error("Error fetching user's events", error);
-      } finally {
         setLoading(false);
       }
     };
@@ -46,7 +48,15 @@ const MyEvents = () => {
       setMyEvents((prevEvents) => prevEvents.filter(event => event._id !== eventId));
       alert('Successfully deleted event')
     } catch (error) {
-      console.error("Error deleting event:", error);
+      setError(true)
+      setErrorMessage(err.response.data.msg)
+      navigate("/error", {
+        state: {
+          error: true,
+          errorMessage: err.response.data.msg,
+          errorCode: err.response.status,
+        },
+      });
     }
   };
 

@@ -6,6 +6,7 @@ import useAuth from '../hooks/useAuth';
 const CreateEvent = () => {
   const axiosPrivate = useAxiosPrivate();
   const { auth } = useAuth();
+
   const [eventData, setEventData] = useState({
     name: '',
     info: '',
@@ -18,7 +19,8 @@ const CreateEvent = () => {
     images: [],
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -43,12 +45,18 @@ const CreateEvent = () => {
         tags: formattedTags,
         createdBy: auth?.user._id
       });
-
-      console.log('Event created:', response.data);
+      alert('Successfully created an event')
       navigate('/myevents'); 
     } catch (err) {
-      console.error('Error creating event:', err);
-      setError('Failed to create event. Please try again.');
+      setError(true)
+      setErrorMessage(err.response.data.msg)
+      navigate("/error", {
+        state: {
+          error: true,
+          errorMessage: err.response.data.msg,
+          errorCode: err.response.status,
+        },
+      });
     }
   };
 
