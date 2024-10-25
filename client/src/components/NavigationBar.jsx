@@ -9,7 +9,7 @@ const NavigationBar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
-  const isOrganiser = auth.user?.roles?.Organiser === 200;
+  const isOrganiser = auth.user?.roles.filter((role) => role === 200)
 
   return (
     <nav style={styles.nav}>
@@ -17,7 +17,7 @@ const NavigationBar = () => {
       {auth?.user ? (
         <>
           <button onClick={() => navigate("/home")}>Home</button>
-          {isOrganiser && (
+          {isOrganiser[0] === 200 && (
             <>
               <button onClick={() => navigate("/myevents")}>My events</button>
               <button onClick={() => navigate("/create-event")}>

@@ -24,7 +24,6 @@ const UserPage = () => {
         const response = await getUserById(user_id);
         setUser(response);
       } catch (err) {
-        console.log(err);
         setError(true);
         setErrorMessage(err.response.data.msg);
         navigate("/error", {
@@ -38,7 +37,7 @@ const UserPage = () => {
     };
 
     fetchUser();
-  }, [user, loadingRoleChange]);
+  }, [user_id]);
 
   useEffect(() => {
     if (user && user.attendingEvents && user.attendingEvents.length > 0) {
@@ -86,7 +85,7 @@ const UserPage = () => {
   };
 
   const canEditRoles = auth?.user?._id === user?._id;
-  const isOrganiser = auth.user?.roles?.Organiser === 200;
+  const isOrganiser = auth.user?.roles?.Organiser === 200 || user?.roles?.Organiser === 200
 
   if (!user) {
     return <p>Loading...</p>;
@@ -94,8 +93,8 @@ const UserPage = () => {
 
   return (
     <>
-      <h2>{user.username}'s page</h2>
-      <p>Username: {user.username}</p>
+      <h1>{user.username}'s page</h1>
+      <img src={user.avatar}/>
       <p>Since: {new Date(user.createdAt).toDateString()}</p>
 
       {canEditRoles && (
@@ -114,7 +113,7 @@ const UserPage = () => {
       )}
 
       <br />
-      <p>Events I'm attending:</p>
+      <h3>Events {user.username} is attending:</h3>
       <ul>
         {attendingEvents.length > 0 ? (
           attendingEvents.map((event) => (
@@ -122,7 +121,7 @@ const UserPage = () => {
           ))
         ) : (
           <p>
-            No events yet - want to <Link to={"/home"}>see more events?</Link>
+            None yet - want to <Link to={"/home"}>check out more events?</Link>
           </p>
         )}
       </ul>

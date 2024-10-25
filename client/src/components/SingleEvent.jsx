@@ -141,6 +141,7 @@ const SingleEvent = () => {
       {event.createdBy ? (
         <p>
           By <Link to={`/user/${event.createdBy}`}>{user.username}</Link>
+          <img src={user.avatar} id="avatar" />
         </p>
       ) : (
         <p>
