@@ -26,6 +26,20 @@ export const getTMEvents = () => {
 export const getAllEvents = () => {
   return Promise.all([getEvents(), getTMEvents()]).then(
     ([localEvents, tmEvents]) => {
+      // if (localEvents === undefined) {
+      //   console.log(tmEvents, 'tmEvents')
+      //   const allEvents = [...tmEvents];
+      //   const uniqueEvents = [];
+      //   const eventNames = new Set();
+
+      //   allEvents.forEach((event) => {
+      //     if (!eventNames.has(event.name)) {
+      //       eventNames.add(event.name);
+      //       uniqueEvents.push(event);
+      //     }
+      //   });
+      //   return uniqueEvents;
+      // }
       const filteredLocalEvents = localEvents.filter(
         (event) => event.isExternal === false
       );
@@ -73,11 +87,9 @@ export const getEventById = (id) => {
 };
 
 export const getUserById = (user_id) => {
-  return api
-    .get(`users/${user_id}`)
-    .then(({ data }) => {
-      return data.user;
-    });
+  return api.get(`users/${user_id}`).then(({ data }) => {
+    return data.user;
+  });
 };
 
 export const updateUserRole = (user_id, newRole) => {

@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/signup" element={<SignUpPage />} />
 
           <Route element={<PersistLogin />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/events/:id" element={<SingleEvent />} />
             <Route path="/user/:user_id" element={<UserPage />} />
 

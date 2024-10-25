@@ -20,7 +20,7 @@ const NavigationBar = () => {
       <SearchBar />
       {auth?.user ? (
         <>
-          <button onClick={() => navigate("/")}>Home</button>
+          <button onClick={() => navigate("/home")}>Home</button>
           {isOrganiser && (
             <>
               <button onClick={() => navigate("/myevents")}>My events</button>
@@ -46,7 +46,7 @@ const NavigationBar = () => {
         </>
       ) : (
         <>
-          <button onClick={() => navigate("/")}>Home</button>
+          <button onClick={() => navigate("/home")}>Home</button>
           <LoginButton />
           <SignUpButton />
         </>
