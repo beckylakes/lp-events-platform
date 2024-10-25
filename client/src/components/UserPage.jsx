@@ -68,7 +68,6 @@ const UserPage = () => {
       const updatedUser = await axiosPrivate.patch(`users/${user_id}`, {
         roles: filteredRoles,
       });
-      console.log(updatedUser.data.user)
       setUser(updatedUser.data.user);
       updateAuthUser(updatedUser.data.user)
       setLoadingRoleChange(false);

@@ -1,7 +1,6 @@
 import SearchBar from "./SearchBar";
 import LoginButton from "./LoginButton";
 import SignUpButton from "./SignUpButton";
-import AuthContext from "../context/AuthProvider";
 import LogoutButton from "./LogoutButton";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import useAuth from "../hooks/useAuth";
-import { axiosPrivate, getEventById } from "../api/api";
+import { getEventById } from "../api/api";
 
 const MyEvents = () => {
   const { auth } = useAuth();
