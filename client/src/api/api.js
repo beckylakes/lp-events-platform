@@ -60,15 +60,6 @@ export const loginUser = (email, password) => {
     });
 };
 
-export const logoutUser = () => {
-  return api
-    .post("users/logout", {}, { withCredentials: true })
-    .then((data) => {
-      console.log(data);
-      return data;
-    });
-};
-
 export const getEventById = (id) => {
   if (id.length < 24) {
     return api.get(`ticketmaster/events/${id}`).then(({ data }) => {
@@ -81,32 +72,9 @@ export const getEventById = (id) => {
   });
 };
 
-export const attendEvent = (userId, eventId) => {
-  if (eventId.length < 24) {
-    return api
-      .post(`users/${userId}/ticketmaster/attend`, { eventId })
-      .then((data) => {
-        return data;
-      });
-  }
-
-  return api.post(`users/${userId}/attend`, { eventId }).then((data) => {
-    return data;
-  });
-};
-
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
-
 export const getUserById = (user_id) => {
   return api
-    .get(`users/${user_id}`, {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${getCookie("jwt")}` },
-    })
+    .get(`users/${user_id}`)
     .then(({ data }) => {
       return data.user;
     });

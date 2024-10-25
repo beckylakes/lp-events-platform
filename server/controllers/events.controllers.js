@@ -8,6 +8,7 @@ const {
   selectTMEventById,
   findTMEventById,
 } = require("../models/events.models.js");
+const { selectUserById, findUsersByEvent, updateUserEvents } = require("../models/users.models.js");
 
 const API_KEY = process.env.API_KEY;
 
@@ -45,26 +46,74 @@ function patchEvent(req, res, next) {
 }
 
 function postEvent(req, res, next) {
-  const { name, info, location, date, startTime, endTime, price, tags, images, createdBy } = req.body;
+  const {
+    name,
+    info,
+    location,
+    date,
+    startTime,
+    endTime,
+    price,
+    tags,
+    images,
+    createdBy,
+  } = req.body;
 
-  return insertEvent(name, info, location, date, startTime, endTime, price, tags, images, createdBy)
+  return insertEvent(
+    name,
+    info,
+    location,
+    date,
+    startTime,
+    endTime,
+    price,
+    tags,
+    images,
+    createdBy
+  )
     .then((event) => {
-      res.status(201).send({ event });
+      return selectUserById(event.createdBy).then((user) => {
+        if (!user.createdEvents.includes(event._id)) {
+          user.createdEvents.push(event._id);
+          return user.save().then(() => {
+            res.status(201).send({ event });
+          });
+        } else {
+          res.status(201).send({ event });
+        }
+      });
     })
     .catch((err) => {
       next(err);
     });
-}
+  }
+  
+  async function deleteEventByID(req, res, next) {
+    const { event_id } = req.params;
+    
+    try {
+      await deleteEvent(event_id);
+      
+      const users = await findUsersByEvent(event_id);
+      const updatePromises = users.map(async (user) => {
+        const updateData = {};
+        
+        if (user.createdEvents.includes(event_id)) {
+          updateData.$pull = { createdEvents: event_id };
+        }
+        
+        if (user.attendingEvents.includes(event_id)) {
+          updateData.$pull = { attendingEvents: event_id };
+        }
+        
+      return updateUserEvents(user._id, updateData);
+    });
 
-function deleteEventByID(req, res, next) {
-  const { event_id } = req.params;
-  return deleteEvent(event_id)
-    .then(() => {
-      res.status(204).send();
-    })
-    .catch((err) => {
-      next(err);
-    });
+    await Promise.all(updatePromises);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
 
 function getTMEvents(req, res, next) {

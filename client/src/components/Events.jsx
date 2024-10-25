@@ -1,59 +1,43 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllEvents } from "../api/api";
 import EventCard from "./EventCard";
-import { Link } from "react-router-dom";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
-  const [error, setError] = useState(null);
-
-  const axiosPrivate = useAxiosPrivate();
+  
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getEvents = async () => {
-      try {
-        const localEventsResponse = await axiosPrivate.get("events");
-        const localEvents = localEventsResponse.data.events;
-
-        const tmEventsResponse = await axiosPrivate.get("ticketmaster/events");
-        const tmEvents = tmEventsResponse.data.events;
-
-        // This is design choice => do I want to display all ticketmaster events, even if the data is slightly odd?
-        const filteredLocalEvents = localEvents.filter(
-          (event) => !event.isExternal
-        );
-        const allEvents = [...filteredLocalEvents, ...tmEvents];
-
-        const uniqueEvents = [];
-        const eventNames = new Set();
-
-        allEvents.forEach((event) => {
-          if (!eventNames.has(event.name)) {
-            eventNames.add(event.name);
-            uniqueEvents.push(event);
-          }
+    getAllEvents()
+      .then((allEvents) => {
+        setEvents(allEvents);
+        setLoading(false);
+        setError(false)
+      })
+      .catch((err) => {
+        setError(true);
+        setErrorMessage(err.response.data.msg)
+        setLoading(false);
+        navigate("/error", {
+          state: {
+            error: true,
+            errorMessage: err.response.data.msg,
+            errorCode: err.response.status,
+          },
         });
-        setEvents(uniqueEvents);
-      } catch (err) {
-        console.error(err);
-        setError(err);
-      }
-    };
-
-    // Call the function to fetch events
-    getEvents();
+      });
   }, []);
+
+  if (loading) return <p>Loading...</p>;
+
   return (
     <>
       <ul>
         {events.map((event) => {
           const id = event._id || event.id;
-          return (
-            <Link to={`/events/${id}`} key={id}>
-              <EventCard event={event} />
-            </Link>
-          );
+          return <EventCard event={event} id={id} key={id} />;
         })}
       </ul>
     </>

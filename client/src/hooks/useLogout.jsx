@@ -1,5 +1,4 @@
 import useAuth from "./useAuth";
-import { api } from "../api/api";
 import axios from "axios";
 
 const useLogout = () => {
@@ -14,7 +13,7 @@ const useLogout = () => {
         { withCredentials: true }
       );
     } catch (err) {
-      console.log(err);
+      throw new err;
     }
   };
 

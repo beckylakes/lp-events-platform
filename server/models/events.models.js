@@ -145,12 +145,14 @@ function findTMEventById(ticketmasterId, event) {
   });
 }
 
-function findEventByUser(user_id) {
-  return selectUserById(user_id).then((user) => {
-    return Event.find({ createdBy: user._id }).then((result) => {
-      return result
+function updateEventAttendees(user_id, event_id) {
+  if (!mongoose.Types.ObjectId.isValid(event_id)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "Bad request",
     });
-  });
+  }
+  return Event.findByIdAndUpdate(event_id, {$pull: {attendees: user_id}})
 }
 
 module.exports = {
@@ -162,5 +164,5 @@ module.exports = {
   selectTMEventById,
   findTMEventById,
   insertTMEvent,
-  findEventByUser,
+  updateEventAttendees
 };

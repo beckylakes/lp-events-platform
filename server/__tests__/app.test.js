@@ -111,56 +111,6 @@ describe("GET /api/users/:user_id", () => {
   });
 });
 
-describe("GET /api/users/:user_id/myevents", () => {
-  test("should return 401 status if Authorization token is invalid", () => {
-    return request(app)
-      .get(`/api/user/${validUserId}/myevents`)
-      .set("Authorization", "invalidToken")
-      .expect(401)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Unauthorised access");
-      });
-  });
-
-  test("should return 400 status if user id token is invalid", () => {
-    return request(app)
-      .get(`/api/user/invalid-id/myevents`)
-      .set("Authorization", token)
-      .expect(400)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("Bad request");
-      });
-  });
-
-  test("should return 404 status if user id is non existent", () => {
-    return request(app)
-      .get(`/api/user/66feec40084c536f65f2e987/myevents`)
-      .set("Authorization", token)
-      .expect(404)
-      .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("User not found");
-      });
-  });
-
-  test("should return 200 status and array of events created by user", () => {
-    return request(app)
-      .get(`/api/user/${validUserId}/myevents`)
-      .set("Authorization", token)
-      .expect(200)
-      .then((response) => {
-        const { events } = response.body
-        expect(Array.isArray(events)).toBe(true)
-        expect(events.length).toBe(2)
-        expect(events[0].name).toBe("Community Yoga")
-        expect(events[1].name).toBe("Free Coffee & Pastries Lunch")
-      });
-  });
-
-});
-
 describe("POST /api/users", () => {
   test("should respond with 400 status and error message when required fields are missing", () => {
     const invalidUserData = {
@@ -483,6 +433,70 @@ describe("POST /api/users/:user_id/ticketmaster/attend", () => {
   });
 });
 
+describe('POST /api/users/:user_id/unattend', () => {
+  test('should respond with a 401 status if Authorization token is invalid', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', 'invalidToken')
+      .send({ event_id: validEventId })
+      .expect(401)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Unauthorised access');
+      });
+  });
+  
+  test('should respond with a 400 status if user id is invalid', () => {
+    return request(app)
+      .post('/api/users/invalidUserId/unattend')
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Bad request');
+      });
+  });
+
+  test('should respond with a 400 status if event id is invalid', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: 'invalidEventId123' })
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('Bad request');
+      });
+  });
+
+  test('should respond with 404 status if the user is not found (non-existent id)', () => {
+    return request(app)
+      .post(`/api/users/66feec40084c536f65f2e987/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('User not found');
+      });
+  });
+
+  test('should respond with a 200 status and message when user successfully unattends the event', () => {
+    return request(app)
+      .post(`/api/users/${validUserId}/unattend`)
+      .set('Authorization', token)
+      .send({ event_id: validEventId })
+      .expect(200)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe('You have stopped attending this event');
+      });
+  });
+
+});
+
+
 describe("GET /api/events", () => {
   test("should respond with an array of expected length", () => {
     return request(app)
@@ -729,7 +743,7 @@ describe("PATCH /api/events/:event_id", () => {
           endTime: expect.any(String),
           createdBy: `${validUserId}`,
           price: 0,
-          attendees: [`${validUserId}`],
+          attendees: [],
           isPaid: false,
           tags: ["drink", "fun", "community"],
           images: [],
@@ -755,7 +769,7 @@ describe("PATCH /api/events/:event_id", () => {
           endTime: expect.any(String),
           createdBy: `${validUserId}`,
           price: 0,
-          attendees: [`${validUserId}`],
+          attendees: [],
           isPaid: false,
           tags: ["drink", "fun", "community"],
           images: [],
@@ -852,7 +866,7 @@ describe("DELETE /api/events/:event_id", () => {
       });
   });
 
-  test("should respond with 204 status when user is deleted (no return)", () => {
+  test("should respond with 204 status when event is deleted (no return)", () => {
     return request(app)
       .delete(`/api/events/${validEventId}`)
       .set("Authorization", token)

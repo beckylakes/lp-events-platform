@@ -1,7 +1,7 @@
 const {
   selectEventById,
   findTMEventById,
-  findEventByUser,
+  updateEventAttendees
 } = require("../models/events.models.js");
 const {
   selectAllUsers,
@@ -11,6 +11,7 @@ const {
   deleteUser,
   findUser,
   findUserByRefreshToken,
+  updateUserAttending
 } = require("../models/users.models.js");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
@@ -157,7 +158,7 @@ function postLogout(req, res, next) {
 async function postRefreshToken(req, res, next) {
   const cookies = req.cookies;
   if (!cookies?.jwt)
-    return res.status(401).send({ msg: "Unauthorized access" });
+    return res.status(401).send({ msg: "Unauthorised access" });
 
   const refreshToken = cookies.jwt;
   const foundUser = await User.findOne({ refreshToken }).exec();
@@ -267,13 +268,17 @@ function postAttendTMEvent(req, res, next) {
     });
 }
 
-function getUserEvents(req, res, next) {
+function postUnattend(req, res, next) {
   const { user_id } = req.params;
-  return findEventByUser(user_id)
-    .then((events) => {
-      res.status(200).send({ events });
-    })
-    .catch((err) => next(err));
+  const { event_id } = req.body;
+  return updateEventAttendees(user_id, event_id).then(() => {
+    return updateUserAttending(user_id, event_id)
+  }).then(() => {
+    res.status(200).send({ msg: "You have stopped attending this event" })
+  })
+  .catch((err) => {
+    next(err)
+  })
 }
 
 module.exports = {
@@ -287,5 +292,5 @@ module.exports = {
   postRefreshToken,
   postAttendEvent,
   postAttendTMEvent,
-  getUserEvents,
+  postUnattend
 };
