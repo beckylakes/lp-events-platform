@@ -8,7 +8,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/home";
+  const from = location.state?.from?.pathname || "/";
 
   const userRef = useRef();
   const errRef = useRef();

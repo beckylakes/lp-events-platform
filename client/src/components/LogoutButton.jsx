@@ -7,7 +7,7 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/home");
+    navigate("/");
   };
 
   return <button onClick={handleLogout}>Logout</button>;

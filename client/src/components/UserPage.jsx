@@ -131,7 +131,7 @@ const UserPage = () => {
           ))
         ) : (
           <p>
-            None yet - want to <Link to={"/home"}>check out more events?</Link>
+            None yet - want to <Link to={"/"}>check out more events?</Link>
           </p>
         )}
       </ul>
