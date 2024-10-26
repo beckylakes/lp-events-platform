@@ -1,15 +1,15 @@
 import axios from "axios";
 import useAuth from "./useAuth";
+// import useAxiosPrivate from "./useAxiosPrivate";
 
 const useRefreshToken = () => {
     const { setAuth } = useAuth();
+    // const axiosPrivate = useAxiosPrivate();
+    
     console.log('in useRefreshToken')
-    const refresh = async () => {
-        axios.defaults.withCredentials = true
-        axios.defaults.baseURL = "https://eventure-4z44.onrender.com/api/"
-        const response = await axios.post('users/refresh', {}, {withCredentials: true});
-        console.log('in refresh')
-        console.log(response)
+    const refresh = async () => { 
+        const response = await axios.post('https://eventure-4z44.onrender.com/api/users/refresh', {}, {withCredentials: true});
+        console.log('in refresh', response)
         setAuth(prev => {
             return {
                 ...prev,
