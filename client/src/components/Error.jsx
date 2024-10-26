@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const Error = () => {
   const navigate = useNavigate();
-  const goBack = () => navigate('/');
+  const goBack = () => navigate('/home');
 
   const location = useLocation();
   const { error, errorMessage, errorCode } = location.state || {};

@@ -9,7 +9,7 @@ module.exports = [
     {
       username: "NormalUser",
       email: "user@gmail.com",
-      password: "Staff123!",
+      password: "User123!",
       roles: {"User": 100},
       avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSKvNBpw9KwaERXM9rgCd1hSTjO6-h0K_QOQ&s"
     },
