@@ -348,6 +348,10 @@ label {
     width: 100%;
     max-width: 250px;
   }
+
+  .search-bar-container {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -404,6 +408,10 @@ label {
     padding: 2rem;
     width: 100%;
     max-width: 100%;
+  }
+
+  .search-bar-container {
+    display: none;
   }
 
   button {
