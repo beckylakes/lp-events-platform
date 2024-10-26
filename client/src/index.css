@@ -299,6 +299,12 @@ label {
   margin-top: 1.5rem;
 }
 
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
   html {
     font-size: 18px;
@@ -351,6 +357,13 @@ label {
 
   .search-bar-container {
     display: none;
+  }
+
+  .nav-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.5rem;
   }
 }
 
@@ -418,6 +431,13 @@ label {
     font-size: 0.8rem;
     padding: 0.5rem;
     width: 100%;
+  }
+
+  .nav-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.5rem;
   }
 }
 

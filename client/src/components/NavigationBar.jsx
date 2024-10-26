@@ -15,44 +15,46 @@ const NavigationBar = () => {
     ? auth.user.roles.Organiser === 200
     : auth.user?.roles === 200;
 
-  return (
-    <nav >
-      <SearchBar />
-      {auth?.user ? (
-        <>
-          <button onClick={() => navigate("/home")}>Home</button>
-          {isOrganiser && (
+    return (
+      <nav>
+        <SearchBar />
+        <div className="nav-buttons">
+          {auth?.user ? (
             <>
-              <button onClick={() => navigate("/myevents")}>My events</button>
-              <button onClick={() => navigate("/create-event")}>
-                Create event
+              <button onClick={() => navigate("/home")}>Home</button>
+              {isOrganiser && (
+                <>
+                  <button onClick={() => navigate("/myevents")}>My events</button>
+                  <button onClick={() => navigate("/create-event")}>
+                    Create event
+                  </button>
+                </>
+              )}
+              <button onClick={() => navigate(`/user/${auth.user._id}`)}>
+                My Account
               </button>
+              <div className="account-button">
+                <Link to={`/user/${auth.user._id}`}>
+                  <img
+                    id="avatar"
+                    src={auth.user.avatar}
+                    alt={`${auth.user.username}'s avatar`}
+                  />
+                  <p>Welcome back, {auth.user.username}</p>
+                </Link>
+              </div>
+              <LogoutButton />
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigate("/home")}>Home</button>
+              <LoginButton />
+              <SignUpButton />
             </>
           )}
-          <button onClick={() => navigate(`/user/${auth.user._id}`)}>
-            My Account
-          </button>
-          <div className="account-button">
-            <Link to={`/user/${auth.user._id}`}>
-              <img
-                id="avatar"
-                src={auth.user.avatar}
-                alt={`${auth.user.username}'s avatar`}
-              />
-              <p>Welcome back, {auth.user.username}</p>
-            </Link>
-          </div>
-          <LogoutButton />
-        </>
-      ) : (
-        <>
-          <button onClick={() => navigate("/home")}>Home</button>
-          <LoginButton />
-          <SignUpButton />
-        </>
-      )}
-    </nav>
-  );
-};
+        </div>
+      </nav>
+    );
+  };
 
 export default NavigationBar;
