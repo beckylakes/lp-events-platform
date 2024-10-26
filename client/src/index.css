@@ -311,6 +311,7 @@ label {
   }
 
   .header {
+    width: 100%;
     flex-direction: column;
     padding: 1rem;
     align-items: center;
@@ -360,6 +361,13 @@ label {
     align-items: center;
   }
 
+  .header {
+    width: 100%;
+    flex-direction: column;
+    padding: 1rem;
+    align-items: center;
+  }
+
   .header #logo {
     width: 120px;
     transition: width 0.3s ease-in-out;
@@ -393,9 +401,9 @@ label {
   .login-page-container,
   .signin-page-container,
   .create-event-form {
-    padding: 1rem;
+    padding: 2rem;
     width: 100%;
-    max-width: 90%;
+    max-width: 100%;
   }
 
   button {
