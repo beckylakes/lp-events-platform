@@ -5,10 +5,8 @@ import { api } from "../api/api";
 const useRefreshToken = () => {
     const { setAuth } = useAuth();
 
-    console.log('in useRefreshToken')
     const refresh = async () => { 
         const response = await api.post('users/refresh', {}, {withCredentials: true});
-        console.log('in refresh', response)
         setAuth(prev => {
             return {
                 ...prev,
