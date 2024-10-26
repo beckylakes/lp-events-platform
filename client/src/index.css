@@ -303,6 +303,7 @@ label {
   display: flex;
   gap: 1rem;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -360,10 +361,15 @@ label {
   }
 
   .nav-buttons {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem;
+  }
+
+  .nav-buttons button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    flex: 1 1 45%;
   }
 }
 
@@ -434,10 +440,15 @@ label {
   }
 
   .nav-buttons {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem;
+  }
+
+  .nav-buttons button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    flex: 1 1 45%;
   }
 }
 
