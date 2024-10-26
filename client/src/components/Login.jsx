@@ -44,7 +44,7 @@ const Login = () => {
     <section className="login-form">
       <p
         ref={errRef}
-        className={errorMessage ? "errmsg" : "offscreen"}
+        className={errorMessage ? "errorMessage" : "offscreen"}
         aria-live="assertive"
       >
         {errorMessage}
