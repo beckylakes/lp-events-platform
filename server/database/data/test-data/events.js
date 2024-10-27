@@ -2,7 +2,7 @@ module.exports = [
     {
       name: "Community Yoga",
       info: "Join us for a relaxing community yoga session to improve your flexibility and mental clarity.",
-      location: "",
+      location: "Central Park, New York",
       date: ("2024-11-10"),
       startTime: "09:00:00",
       endTime: "10:30:00",
