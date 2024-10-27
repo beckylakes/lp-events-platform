@@ -2,7 +2,7 @@ import Events from "./Events";
 
 const HomePage = () => {
   return (
-    <div>
+    <div className="loading-page">
       <img
         className="banner"
         src="https://images.pexels.com/photos/196652/pexels-photo-196652.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"

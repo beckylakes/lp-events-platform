@@ -61,7 +61,7 @@ const MyEvents = () => {
   };
 
   if (loading) {
-    return <p>Loading events...</p>;
+    return <p className="loading-page">Loading...</p>;
   }
 
   return (
@@ -78,7 +78,7 @@ const MyEvents = () => {
       ) : (
         <ul className="my-events-container">
           {myEvents.map((event) => (
-            <div key={event._id} >
+            <div className="event-card-wrapper"key={event._id} >
               <EventCard event={event} id={event._id} key={event._id}/>
               <button onClick={() => {handleDelete(event._id)}}>Delete</button>
            </div>
