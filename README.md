@@ -3,6 +3,7 @@ Welcome to Eventure, an event platform targeted at helping to connect you with a
 
 ## Project Summary 📚
 Eventure is an events platform created to allow music lovers to discover global or local events, and also provides a platform for event organisers to share their events with the community.
+In this project I have learned in great detail on RBAC (Role Based Access Control) and authentication using access/refresh tokens throughout my backend and frontend code. My backend server acts as a RESTful API for my accessible frontend which is deployed on Netlify.
 
 * Normal users can login, browse other users, upcoming events and upon finding their ideal event can, with a click of the button, begin attending. They will then have the option to add it to their calendar, or if they change their mind, they can choose to stop attending.
 
@@ -22,6 +23,7 @@ Feel free to sign up/login as your own user on my website, but if you prefer, I 
 * Express
 * Node.js (minimum version: 20.0.0)
 * Ticketmaster (an free API key for their Discovery API is required - please follow their docs [here](https://developer.ticketmaster.com/products-and-docs/apis/getting-started/))
+* Jest/Supertest
 
 ### Frontend
 * React.js (minimum version: 18.0.0)
