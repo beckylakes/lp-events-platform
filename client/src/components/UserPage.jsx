@@ -79,7 +79,8 @@ const UserPage = () => {
       });
       setUser(updatedUser.data.user);
       updateAuthUser(updatedUser.data.user)
-      setLoadingRoleChange(false);
+      setLoadingRoleChange(false)
+      navigate(0)
     } catch (err) {
       setError(true);
       setErrorMessage(err.response.data.msg);

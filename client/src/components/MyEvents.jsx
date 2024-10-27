@@ -3,13 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import useAuth from "../hooks/useAuth";
-import { getEventById } from "../api/api";
+import { getEventById, getUserById } from "../api/api";
 
 const MyEvents = () => {
   const { auth } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
- 
 
   const [myEvents, setMyEvents] = useState([]);
 
@@ -20,19 +19,22 @@ const MyEvents = () => {
   useEffect(() => {
     const fetchMyEvents = async () => {
       try {
-        const response = await axiosPrivate.get(`users/${auth.user._id}`);
-        const createdEventsIds = response.data.user.createdEvents;
+        const response = await getUserById(auth.user._id);
+          const createdEventsIds = response.createdEvents;
 
-        const eventDetailsPromises = createdEventsIds.map((eventId) =>
-          getEventById(eventId)
-        );
+          const eventDetailsPromises = createdEventsIds.map((eventId) =>
+            getEventById(eventId)
+          );
+          const events = await Promise.all(eventDetailsPromises);
 
-        const events = await Promise.all(eventDetailsPromises);
-
-        setMyEvents(events);
-        setLoading(false)
+          setMyEvents(events);
+          setLoading(false);
+    
       } catch (error) {
+        console.log(error);
         setLoading(false);
+        setError(true);
+        setErrorMessage(error.response.data.msg);
       }
     };
 
@@ -40,16 +42,20 @@ const MyEvents = () => {
   }, []);
 
   const handleDelete = async (eventId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this event?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this event?"
+    );
     if (!confirmDelete) return;
 
     try {
       await axiosPrivate.delete(`events/${eventId}`);
-      setMyEvents((prevEvents) => prevEvents.filter(event => event._id !== eventId));
-      alert('Successfully deleted event')
+      setMyEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== eventId)
+      );
+      alert("Successfully deleted event");
     } catch (error) {
-      setError(true)
-      setErrorMessage(err.response.data.msg)
+      setError(true);
+      setErrorMessage(error.response.data.msg);
       navigate("/error", {
         state: {
           error: true,
@@ -78,10 +84,16 @@ const MyEvents = () => {
       ) : (
         <ul className="my-events-container">
           {myEvents.map((event) => (
-            <div className="event-card-wrapper"key={event._id} >
-              <EventCard event={event} id={event._id} key={event._id}/>
-              <button onClick={() => {handleDelete(event._id)}}>Delete</button>
-           </div>
+            <div className="event-card-wrapper" key={event._id}>
+              <EventCard event={event} id={event._id} key={event._id} />
+              <button
+                onClick={() => {
+                  handleDelete(event._id);
+                }}
+              >
+                Delete
+              </button>
+            </div>
           ))}
         </ul>
       )}
