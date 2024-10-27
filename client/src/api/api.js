@@ -1,15 +1,14 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://eventure-4z44.onrender.com/api/",
+  baseURL: "http://localhost:9090/api/",
 });
 
 export const axiosPrivate = axios.create({
-  baseURL: "https://eventure-4z44.onrender.com/api/",
+  baseURL: "http://localhost:9090/api/",
   headers: {'Content-Type': 'application/json'},
   withCredentials: true,
 })
-
 
 export const getEvents = () => {
   return api.get("events").then(({ data }) => {
