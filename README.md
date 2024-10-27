@@ -83,7 +83,9 @@ npm run dev
 Open the link that is given in the terminal and make sure to write '/home' as the endpoint.
 
 ## Phew! You made it 🎉🎉🎉
-Glad you've made it this far! From this point, you can now sign up as a new user (use any random email you like - I've been using test@test.com for weeks!) and follow the instructions for making a password (may I suggest the classic 'Password123!' combo?). After signing up, you will need to login using the same details you just signed up with (I know - totally not obvious!) and you should now be signed in as a user. Feel free to peruse the events and click the attend button on as many as you like. If you want to view which events you're going to, click on 'My Account' in the navigation and you'll get a nice summary there. On your account page, you can also choose to become an Event Organiser with the click of a button. Upon doing so, you will now see some new options pop up to create an event, or view your events page. Again, feel free to create any test events or delete them if you so wish.
+Glad you've made it this far! From this point, you can now sign up as a new user (use any random email you like - I've been using test@test.com for weeks!) and follow the instructions for making a password (may I suggest the classic 'Password123!' combo?). After signing up, you will need to login using the same details you just signed up with and you should now be signed in as a user.
+
+Feel free to peruse the events and click the attend button on as many as you like. If you want to view which events you're going to, click on 'My Account' in the navigation and you'll get a nice summary there. On your account page, you can also choose to become an Event Organiser with the click of a button. Upon doing so, you will now see some new options pop up to create an event, or view your events page. Again, feel free to create any test events or delete them if you so wish.
 
 I've tried to keep everything nice and accessible, and hope my website/app can be used by all peoples!
 
