@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import useAuth from '../hooks/useAuth';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useAuth from "../hooks/useAuth";
 
 const CreateEvent = () => {
   const axiosPrivate = useAxiosPrivate();
   const { auth } = useAuth();
 
   const [eventData, setEventData] = useState({
-    name: '',
-    info: '',
-    location: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    name: "",
+    info: "",
+    location: "",
+    date: "",
+    startTime: "",
+    endTime: "",
     price: 0,
-    tags: '',
+    tags: "",
     images: [],
   });
 
@@ -25,9 +25,9 @@ const CreateEvent = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     if (name === "images") {
-      const imageArray = value.split(',').map((image) => image.trim());
+      const imageArray = value.split(",").map((image) => image.trim());
       setEventData((prevData) => ({ ...prevData, images: imageArray }));
     } else {
       setEventData((prevData) => ({ ...prevData, [name]: value }));
@@ -36,20 +36,20 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const formattedTags = eventData.tags.split(',').map((tag) => tag.trim());
-  
+
+    const formattedTags = eventData.tags.split(",").map((tag) => tag.trim());
+
     try {
-      const response = await axiosPrivate.post('/events', {
+      const response = await axiosPrivate.post("/events", {
         ...eventData,
         tags: formattedTags,
-        createdBy: auth?.user._id
+        createdBy: auth?.user._id,
       });
-      alert('Successfully created an event')
-      navigate('/myevents'); 
+      alert("Successfully created an event");
+      navigate("/myevents");
     } catch (err) {
-      setError(true)
-      setErrorMessage(err.response.data.msg)
+      setError(true);
+      setErrorMessage(err.response.data.msg);
       navigate("/error", {
         state: {
           error: true,
@@ -61,108 +61,90 @@ const CreateEvent = () => {
   };
 
   return (
-    <div className="create-event-form">
+    <section className="create-event-form">
       <h2>Create Event</h2>
-      {error && <p>{error}</p>}
-      <form  onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={eventData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+      {error && <p aria-live="polite">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="name">Name:</label>
+        <input
+          type="text"
+          name="name"
+          value={eventData.name}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label>Info:</label>
-          <textarea
-            name="info"
-            value={eventData.info}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <label htmlFor="info">Info:</label>
+        <textarea
+          name="info"
+          value={eventData.info}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label>Location:</label>
-          <input
-            type="text"
-            name="location"
-            value={eventData.location}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <label htmlFor="location">Location:</label>
+        <input
+          type="text"
+          name="location"
+          value={eventData.location}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label>Date:</label>
-          <input
-            type="date"
-            name="date"
-            value={eventData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <label htmlFor="date">Date:</label>
+        <input
+          type="date"
+          name="date"
+          value={eventData.date}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label>Start Time:</label>
-          <input
-            type="time"
-            name="startTime"
-            value={eventData.startTime}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <label htmlFor="start time">Start Time:</label>
+        <input
+          type="time"
+          name="startTime"
+          value={eventData.startTime}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label>End Time:</label>
-          <input
-            type="time"
-            name="endTime"
-            value={eventData.endTime}
-            onChange={handleChange}
-          />
-        </div>
+        <label htmlFor="end time">End Time:</label>
+        <input
+          type="time"
+          name="endTime"
+          value={eventData.endTime}
+          onChange={handleChange}
+        />
 
-        <div>
-          <label>Price:</label>
-          <input
-            type="number"
-            name="price"
-            value={eventData.price}
-            onChange={handleChange}
-            min="0"
-          />
-        </div>
+        <label htmlFor="price">Price:</label>
+        <input
+          type="number"
+          name="price"
+          value={eventData.price}
+          onChange={handleChange}
+          min="0"
+        />
 
-        <div>
-          <label>Tags (separate each tag with a ','):</label>
-          <input
-            type="text"
-            name="tags"
-            value={eventData.tags}
-            onChange={handleChange}
-          />
-        </div>
+        <label htmlFor="tags">Tags (separate each tag with a ','):</label>
+        <input
+          type="text"
+          name="tags"
+          value={eventData.tags}
+          onChange={handleChange}
+        />
 
-        <div>
-          <label>Images (separate each URL with a ','):</label>
-          <input
-            type="text"
-            name="images"
-            value={eventData.images}
-            onChange={handleChange}
-          />
-        </div>
+        <label htmlFor="images">Images (separate each URL with a ','):</label>
+        <input
+          type="text"
+          name="images"
+          value={eventData.images}
+          onChange={handleChange}
+        />
 
         <button type="submit">Create Event</button>
       </form>
-    </div>
+    </section>
   );
 };
 

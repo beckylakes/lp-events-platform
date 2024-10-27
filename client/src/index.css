@@ -10,6 +10,10 @@ html {
   color: #000000;
 }
 
+ul {
+  list-style-type: none;
+}
+
 .App {
   display: flex;
   flex-direction: column;
@@ -109,6 +113,11 @@ nav {
   padding: 20px 0px 10px 0px;
   min-height: 100vh;
   box-sizing: border-box;
+  width: 100%;
+}
+
+.home-page {
+  width: 100%;
 }
 
 .user-details img {
@@ -348,7 +357,7 @@ label {
   }
 
   .event-page,
-  .loading-page {
+  .home-page {
     width: 100%;
   }
 

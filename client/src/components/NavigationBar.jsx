@@ -18,7 +18,7 @@ const NavigationBar = () => {
     return (
       <nav>
         <SearchBar />
-        <div className="nav-buttons">
+        <section className="nav-buttons">
           {auth?.user ? (
             <>
               <button onClick={() => navigate("/home")}>Home</button>
@@ -34,7 +34,7 @@ const NavigationBar = () => {
                 My Account
               </button>
               <div className="account-button">
-                <Link to={`/user/${auth.user._id}`}>
+                <Link to={`/user/${auth.user._id}`} aria-label={`View profile of ${auth.user.username}`}>
                   <img
                     id="avatar"
                     src={auth.user.avatar}
@@ -52,7 +52,7 @@ const NavigationBar = () => {
               <SignUpButton />
             </>
           )}
-        </div>
+        </section>
       </nav>
     );
   };

@@ -128,7 +128,7 @@ const SingleEvent = () => {
     "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
   return event ? (
-    <div className="event-container">
+    <section className="event-container">
       <h1 className="event-title">{event.name}</h1>
       <img className="event-image" src={eventImage} alt={event.name} />
 
@@ -150,7 +150,7 @@ const SingleEvent = () => {
       <p className="event-price">{eventPrice}</p>
       <p className="event-info">{event.info}</p>
 
-      <div className="event-actions">
+      <section className="event-actions">
         {!attending ? (
           <button onClick={handleAttend}>Attend this event</button>
         ) : (
@@ -165,8 +165,8 @@ const SingleEvent = () => {
             </a>
           </>
         )}
-      </div>
-    </div>
+      </section>
+    </section>
   ) : (
     <p>Loading event details...</p>
   );

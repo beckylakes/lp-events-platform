@@ -2,14 +2,15 @@ import Events from "./Events";
 
 const HomePage = () => {
   return (
-    <div className="loading-page">
+    <section className="home-page">
       <img
         className="banner"
         src="https://images.pexels.com/photos/196652/pexels-photo-196652.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+        alt="Crowd cheering with arms in the air at live music shoe with band performing in the distance"
       />
-      <h3>Upcoming Events:</h3>
+      <h2>Upcoming Events:</h2>
       <Events />
-    </div>
+    </section>
   );
 };
 

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const EventCard = ({ event, id }) => {
+
   const {
     name,
     info,
@@ -26,23 +27,23 @@ const EventCard = ({ event, id }) => {
   const eventPrice = price !== undefined ? price : priceRanges?.[0]?.min;
 
   return (
-    <div className="event-card">
+    <li className="event-card">
       <Link to={`/events/${id}`}>
-        <h4>{name}</h4>
+        <h3>{name}</h3>
         <img
           src={imageUrl}
-          alt={name}
+          alt={`Official picture for the ${name} event`}
           style={{ width: "100%", height: "auto" }}
         />
       </Link>
-      <p>{eventStartTime ? new Date(eventStartTime).toDateString() : "N/A"}</p>
-      <p>{eventLocation || "N/A"}</p>
+      <p>{eventStartTime ? new Date(eventStartTime).toDateString() : "No time or date provided"}</p>
+      <p>{eventLocation || "No location provided"}</p>
       <p>
         {eventPrice !== undefined && eventPrice !== 0
           ? `From £${eventPrice}`
           : "Free"}
       </p>
-</div>
+</li>
   );
 };
 

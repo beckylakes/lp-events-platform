@@ -31,7 +31,6 @@ const MyEvents = () => {
           setLoading(false);
     
       } catch (error) {
-        console.log(error);
         setLoading(false);
         setError(true);
         setErrorMessage(error.response.data.msg);
@@ -71,16 +70,16 @@ const MyEvents = () => {
   }
 
   return (
-    <div className="my-events-page">
+    <section className="my-events-page">
       <h2>My Events</h2>
       {myEvents && myEvents.length === 0 ? (
-        <>
+        <article>
           <p>You have not created any events yet</p>
 
           <p>
             Would you like to <Link to="/create-event">make one?</Link>
           </p>
-        </>
+        </article>
       ) : (
         <ul className="my-events-container">
           {myEvents.map((event) => (
@@ -103,7 +102,7 @@ const MyEvents = () => {
       >
         Create Event +
       </button>
-    </div>
+    </section >
   );
 };
 

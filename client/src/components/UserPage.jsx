@@ -103,9 +103,9 @@ const UserPage = () => {
   }
 
   return (
-    <div className="user-details">
-      <h1>{user.username}'s page</h1>
-      <img src={user.avatar}/>
+    <section className="user-details">
+      <h2>{user.username}'s page</h2>
+      <img src={user.avatar} alt={`${user.username}'s avatar`}/>
       <p>Since: {new Date(user.createdAt).toDateString()}</p>
 
       {canEditRoles && (
@@ -131,12 +131,12 @@ const UserPage = () => {
             <EventCard event={event} key={event._id} id={event._id} />
           ))
         ) : (
-          <p>
+          <article>
             None yet - want to <Link to={"/home"}>check out more events?</Link>
-          </p>
+          </article>
         )}
       </ul>
-    </div>
+    </section>
   );
 };
 
